@@ -456,7 +456,7 @@
             document.getElementById('essentialsList').innerHTML = DATA.slice(0, 6).map(p => {
                 const n = cart[p.id] || 0;
                 return `<div class="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-3xl group cursor-pointer" onclick="openPDP(${p.id})">
-                    <img src="${p.img ? p.img[0] : 'https://cdn-icons-png.flaticon.com/512/706/706164.png'}" class="w-14 h-14 object-contain transition-transform group-hover:scale-110"/><div class="flex-1"><h5 class="h3 !text-sm uppercase line-clamp-1">${p.name}</h5><p class="meta-text !text-[10px]">₹${p.d}</p></div>
+                    <img src="${p.img ? p.img[0] : 'https://cdn-icons-png.flaticon.com/512/706/706164.png'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/706/706164.png'" class="w-14 h-14 object-contain transition-transform group-hover:scale-110"/><div class="flex-1"><h5 class="h3 !text-sm uppercase line-clamp-1">${p.name}</h5><p class="meta-text !text-[10px]">₹${p.d}</p></div>
                     <div onclick="event.stopPropagation()">${n === 0 ? `<button onclick="upd(${p.id},1)" class="bg-black text-white text-[10px] font-black px-5 py-2.5 rounded-full" ${p.stock === 0 ? 'disabled' : ''}>Add</button>` : `<div class="stepper !w-[80px] !h-[36px]"><div class="step-btn" onclick="upd(${p.id},-1)">-</div><div class="text-[11px] font-black">${n}</div><div class="step-btn" onclick="upd(${p.id},1)">+</div></div>`}</div></div>`
             }).join('');
             renderCategories(); sync();
@@ -494,7 +494,10 @@
             document.getElementById('cartFooter').classList.remove('hidden'); 
             document.getElementById('deliveryPromo').classList.remove('hidden');
             
-            const sub = ids.reduce((s,i)=>s+(DATA.find(x=>x.id==i).d*cart[i]), 0);
+            const sub = ids.reduce((s,i)=>{
+                const p = DATA.find(x=>x.id==i);
+                return s + (p ? p.d * cart[i] : 0);
+            }, 0);
             
             // COUPON AVAILABILITY
             const can40 = sub >= 1000;
@@ -568,13 +571,15 @@
 
         function setCoupon(code) { appliedCoupon = code; renderCart(); }
         function applyCoupon() {
-            const code = document.getElementById('cartCouponInput').value.toUpperCase();
+            const code = document.getElementById('couponInput').value.toUpperCase();
             const ids = Object.keys(cart).filter(i=>cart[i]>0);
-            const sub = ids.reduce((s,i)=>s+(DATA.find(x=>x.id==i).d*cart[i]), 0);
+            const sub = ids.reduce((s,i)=>{
+                const p = DATA.find(x=>x.id==i);
+                return s + (p ? p.d * cart[i] : 0);
+            }, 0);
             if (code === 'LOUD40' && sub < 1000) return alert("Add ₹" + (1000-sub) + " more for LOUD40");
             if (code === 'LOUD50' && sub < 2000) return alert("Add ₹" + (2000-sub) + " more for LOUD50");
             if (['LOUD30','LOUD40','LOUD50'].includes(code)) { appliedCoupon = code; renderCart(); }
-        }
         }
 
         function upd(id, d) { cart[id] = Math.max(0, (cart[id] || 0) + d); localStorage.setItem('cart', JSON.stringify(cart)); render(); if(document.getElementById('sideCart').classList.contains('open')) renderCart(); }
