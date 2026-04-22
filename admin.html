@@ -243,9 +243,11 @@
 
         async function saveProduct() {
             const n = document.getElementById('editName').value;
-            const p = document.getElementById('editPrice').value;
-            const s = document.getElementById('editStock').value;
+            const p = parseFloat(document.getElementById('editPrice').value);
+            const s = parseInt(document.getElementById('editStock').value);
             
+            if (isNaN(p) || isNaN(s)) return alert("Please enter valid numbers");
+
             const { error } = await _supabase.from('products')
                 .update({ name: n, discount_price: p, stock: s })
                 .eq('id', editingId);

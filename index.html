@@ -475,6 +475,13 @@
             if(user) renderAccount();
         };
 
+        // AUTO-REFRESH ON TAB FOCUS
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                fetchProducts();
+            }
+        });
+
     </script>
 </body>
 </html>
