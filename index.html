@@ -246,7 +246,7 @@
             if(document.getElementById('checkoutSheet').dataset.pending === "true") startCheckout();
         }
 
-        function renderAccount() {
+        async function renderAccount() {
             const v = ['loginView', 'profileView']; v.forEach(x => document.getElementById(x).classList.add('hidden'));
             if(!user) { document.getElementById('loginView').classList.remove('hidden'); resetLogin(); }
             else {
@@ -254,7 +254,28 @@
                 document.getElementById('profileName').innerText = user.name;
                 document.getElementById('userName').innerText = user.name.split(' ')[0];
                 document.getElementById('profileAddrList').innerHTML = addresses.map(a => `<div class="p-4 bg-gray-50 rounded-2xl text-[11px] font-semibold">${a.flat}, Floor ${a.floor}, ${a.street}</div>`).join('') || '<p class="text-xs text-gray-300">No locations.</p>';
-                document.getElementById('orderHist').innerHTML = history.map(h => `<div class="p-5 border border-gray-100 rounded-3xl flex justify-between"><div><p class="meta-text !text-black mb-1">#ORD-${h.id}</p><p class="h3 !text-sm italic">₹${h.total}</p></div><span class="text-[9px] font-black text-green-500 uppercase self-center">${h.status}</span></div>`).join('') || '<p class="text-xs text-gray-300">No history.</p>';
+                
+                // Fetch History from Supabase
+                const { data, error } = await _supabase
+                    .from('orders')
+                    .select('*')
+                    .eq('customer_phone', user.phone)
+                    .order('created_at', { ascending: false });
+                
+                if (!error && data) {
+                    history = data;
+                    document.getElementById('orderHist').innerHTML = history.map(h => `
+                        <div class="p-5 border border-gray-100 rounded-3xl flex justify-between items-center">
+                            <div>
+                                <p class="meta-text !text-black mb-1">#ORD-${h.id}</p>
+                                <p class="h3 !text-sm italic">₹${h.total_amount}</p>
+                                <p class="text-[8px] opacity-40 uppercase font-black">${new Date(h.created_at).toLocaleDateString()}</p>
+                            </div>
+                            <span class="text-[9px] font-black ${h.status === 'Delivered' ? 'text-green-500' : 'text-orange-500'} uppercase">${h.status}</span>
+                        </div>`).join('') || '<p class="text-xs text-gray-300">No history found.</p>';
+                } else {
+                    document.getElementById('orderHist').innerHTML = '<p class="text-xs text-gray-300">Loading history...</p>';
+                }
             }
         }
 
@@ -368,14 +389,43 @@
         }
         function selectAddr(i) { selAddrIdx = i; renderCheckoutAddrs(); }
         function showPayment() { document.getElementById('shippingView').classList.add('hidden'); document.getElementById('paymentView').classList.remove('hidden'); document.getElementById('checkoutTitle').innerText = "Payment"; }
-        function completeOrder() {
+        async function completeOrder() {
             const ids = Object.keys(cart).filter(i=>cart[i]>0);
             const sub = ids.reduce((s,i)=>s+(DATA.find(x=>x.id==i).d*cart[i]), 0);
-            const ord = { id: Math.random().toString().slice(2,6), total: sub + (sub >= 199 ? 0 : 30), status: "Packing" };
-            history.unshift(ord); localStorage.setItem('hist', JSON.stringify(history));
+            const total = sub + (sub >= 199 ? 0 : 30);
+            
+            const orderItems = ids.map(i => {
+                const p = DATA.find(x=>x.id==i);
+                return { id: i, name: p.name, qty: cart[i], price: p.d };
+            });
+
+            const selAddr = addresses[selAddrIdx];
+            const orderData = {
+                customer_name: user.name,
+                customer_phone: user.phone,
+                total_amount: total,
+                items: orderItems,
+                address: selAddr,
+                utr: document.getElementById('utr').value || 'UPI-PENDING'
+            };
+
+            const { data, error } = await _supabase
+                .from('orders')
+                .insert([orderData])
+                .select();
+
+            if (error) {
+                console.error("Order Error:", error);
+                return alert("Order failed to sync. Please try again.");
+            }
+
+            const newOrder = data[0];
+            history.unshift(newOrder);
+            localStorage.setItem('hist', JSON.stringify(history));
+            
             cart = {}; localStorage.setItem('cart', '{}'); selAddrIdx = -1; render(); closeAll();
             document.getElementById('modal').classList.remove('hidden');
-            document.getElementById('modalContent').innerHTML = `<div class="w-full max-w-[600px] bg-white p-12 rounded-3xl text-center shadow-2xl"><div class="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-10"><span class="material-symbols-outlined text-5xl">verified</span></div><h2 class="h1 italic mb-4">SUCCESS</h2><div class="flex justify-between mb-16 mt-16 px-4"><div class="tracking-step active"><div class="step-dot"><span class="material-symbols-outlined">receipt_long</span></div><span class="meta-text !text-[8px] font-black">Ordered</span></div><div class="tracking-step active"><div class="step-dot"><span class="material-symbols-outlined">package_2</span></div><span class="meta-text !text-[8px] font-black">Packing</span></div><div class="tracking-step"><div class="step-dot"><span class="material-symbols-outlined">delivery_dining</span></div><span class="meta-text !text-[8px] font-black">On Way</span></div></div><button onclick="location.reload()" class="w-full bg-black text-white py-6 rounded-full btn-text uppercase">Close</button></div>`;
+            document.getElementById('modalContent').innerHTML = `<div class="w-full max-w-[600px] bg-white p-12 rounded-3xl text-center shadow-2xl"><div class="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-10"><span class="material-symbols-outlined text-5xl">verified</span></div><h2 class="h1 italic mb-4">SUCCESS</h2><p class="meta-text mb-10">Order #ORD-${newOrder.id} confirmed</p><div class="flex justify-between mb-16 mt-16 px-4"><div class="tracking-step active"><div class="step-dot"><span class="material-symbols-outlined">receipt_long</span></div><span class="meta-text !text-[8px] font-black">Ordered</span></div><div class="tracking-step active"><div class="step-dot"><span class="material-symbols-outlined">package_2</span></div><span class="meta-text !text-[8px] font-black">Packing</span></div><div class="tracking-step"><div class="step-dot"><span class="material-symbols-outlined">delivery_dining</span></div><span class="meta-text !text-[8px] font-black">On Way</span></div></div><button onclick="location.reload()" class="w-full bg-black text-white py-6 rounded-full btn-text uppercase">View in Account</button></div>`;
         }
 
         function sync() { const n = Object.values(cart).reduce((a,b)=>a+b, 0); document.getElementById('badge').innerText = n; document.getElementById('badge').classList.toggle('hidden', n===0); }
