@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>LOUD | FINAL ECOSYSTEM V53</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        :root { --bg: #f9f9f9; --surface: #ffffff; --ink: #000000; --muted: #5e5e5e; --border: #eeeeee; --accent: #22c55e; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; display: inline-block; line-height: 1; vertical-align: middle; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--ink); -webkit-tap-highlight-color: transparent; font-size: 16px; line-height: 1.5; font-weight: 400; margin: 0; padding: 0; overflow-x: hidden; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        h1, .h1 { font-size: clamp(40px, 6vw, 56px); line-height: 1.1; font-weight: 950; letter-spacing: -0.04em; font-style: italic; text-transform: uppercase; }
+        h2, .h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.2; font-weight: 800; letter-spacing: -0.02em; text-transform: uppercase; }
+        h3, .h3 { font-size: 24px; line-height: 1.2; font-weight: 700; }
+        .meta-text { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; }
+
+        input { font-size: 16px !important; outline: none; border: 1px solid var(--border); background: white; padding: 18px 16px 18px 64px !important; width: 100%; border-radius: 14px; transition: border-color 0.3s; }
+        input:focus { border-color: black; }
+        .field-box { position: relative; width: 100%; display: flex; align-items: center; }
+        .field-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #bbb; font-size: 24px; pointer-events: none; z-index: 10; }
+
+        .btn-pro { padding: 16px 32px; border-radius: 9999px; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .btn-pro:active { scale: 0.95; }
+        
+        * { border-radius: 16px; }
+        html, body, div, header, main, section, nav, footer { border-radius: 0; }
+        .rounded-3xl { border-radius: 40px; }
+        .glass { backdrop-filter: blur(24px); background-color: rgba(255,255,255,0.98); }
+        .max-width { max-width: 1440px; margin: 0 auto; padding: 0 20px; }
+        @media (min-width: 1024px) { .max-width { padding: 0 40px; } }
+
+        #sideCart, #sideAccount, #pdp, #checkoutSheet { z-index: 500; transform: translateX(100%); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        #sideCart.open, #sideAccount.open, #pdp.open, #checkoutSheet.open { transform: translateX(0); }
+        
+        @media (max-width: 768px) { 
+            #sideCart, #sideAccount, #pdp, #checkoutSheet { transform: translateY(100%); border-radius: 32px 32px 0 0; width: 100% !important; height: 96vh !important; top: auto !important; bottom: 0 !important; } 
+            #sideCart.open, #sideAccount.open, #pdp.open, #checkoutSheet.open { transform: translateY(0); }
+            .product-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+        }
+
+        .product-grid { display: grid; gap: 16px; grid-template-columns: repeat(5, 1fr); }
+        @media (min-width: 1440px) { .product-grid { grid-template-columns: repeat(6, 1fr); } }
+
+        .stepper { background: black; color: white; display: flex; align-items: center; justify-content: space-between; width: 110px; height: 50px; font-weight: 900; border-radius: 9999px; overflow: hidden; }
+        .step-btn { width: 42px; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+        .tracking-step { display: flex; flex-direction: column; align-items: center; position: relative; flex: 1; }
+        .tracking-step::after { content: ''; position: absolute; top: 20px; left: 50%; width: 100%; height: 2px; background: var(--border); z-index: -1; }
+        .tracking-step:last-child::after { display: none; }
+        .tracking-step.active .step-dot { background: black; color: white; border-color: black; }
+        .step-dot { width: 40px; height: 40px; border-radius: 9999px; border: 2px solid var(--border); background: white; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    </style>
+</head>
+<body class="antialiased pb-20 lg:pb-0">
+
+    <header class="fixed top-0 left-0 w-full h-16 lg:h-20 glass border-b border-[var(--border)] z-[100]">
+        <div class="max-width h-full flex items-center justify-between gap-4 lg:gap-8">
+            <h1 class="text-xl lg:text-2xl h1 cursor-pointer" onclick="window.location.reload()">LOUD</h1>
+            <div class="flex-1 max-w-2xl hidden md:block"><div class="field-box"><span class="material-symbols-outlined field-icon">search</span><input id="searchDesktop" placeholder="SEARCH WAREHOUSE..." oninput="render()"/></div></div>
+            <div class="flex items-center gap-4 lg:gap-8">
+                <div onclick="openAccount()" class="hidden md:flex items-center gap-2 cursor-pointer group"><span class="material-symbols-outlined text-[26px]">account_circle</span><span id="userName" class="hidden lg:block meta-text !text-black">Account</span></div>
+                <div onclick="toggleCart(true)" class="bg-black text-white px-5 lg:px-7 py-2.5 rounded-full cursor-pointer relative flex items-center gap-2 active:scale-95"><span class="material-symbols-outlined text-[22px]">shopping_cart</span><span id="badge" class="absolute -top-1 -right-2 bg-white text-black text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-black hidden border-2 border-black">0</span></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-16 lg:pt-20">
+        <div class="max-width py-6 lg:py-10">
+            <div class="md:hidden mb-6"><div class="field-box"><span class="material-symbols-outlined field-icon">search</span><input id="searchMobile" placeholder="SEARCH STOCK..." oninput="render()"/></div></div>
+            
+            <!-- BENTO BANNERS -->
+            <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10 lg:mb-16">
+                <div class="lg:col-span-2 relative h-56 lg:h-96 bg-black rounded-3xl overflow-hidden flex items-center p-8 lg:p-12 text-white group"><div class="z-10"><h2 class="h1 !text-white mb-6">FLAT 50% OFF<br>LIQUIDATION</h2><button onclick="scrollToGrid()" class="bg-white text-black btn-pro font-black uppercase text-[10px] tracking-widest hover:scale-105">Shop Stock</button></div></div>
+                <div onclick="setCat('Dairy')" class="hidden md:flex relative h-56 lg:h-96 bg-white rounded-3xl overflow-hidden p-12 border border-gray-200 hover:border-black transition-all cursor-pointer"><div class="z-10"><h3 class="h2 italic mb-8">Dairy<br>10 Min</h3><button class="border-2 border-black text-black px-8 py-3 rounded-full font-black text-[10px] uppercase">Explore</button></div></div>
+                <div onclick="setCat('Pantry')" class="hidden lg:flex relative h-56 lg:h-96 bg-zinc-900 rounded-3xl overflow-hidden p-12 text-white hover:bg-black transition-all cursor-pointer"><div class="z-10"><h3 class="h2 italic mb-6">Pantry<br>Stock</h3><button class="bg-white text-black px-8 py-3 rounded-full font-black text-[10px] uppercase">Stock Up</button></div></div>
+            </section>
+
+            <!-- CATEGORY PODS -->
+            <section class="mb-10 lg:mb-16">
+                <h4 class="meta-text mb-8 !text-black font-black">Warehouse Sections</h4>
+                <div class="flex gap-4 lg:gap-8 overflow-x-auto no-scrollbar pb-6">
+                    <div onclick="setCat('All')" class="flex flex-col items-center gap-3 min-w-[80px] cursor-pointer group"><div class="w-16 lg:w-24 h-16 lg:h-24 bg-white border border-gray-100 rounded-2xl flex items-center justify-center group-hover:border-black transition-all"><span class="material-symbols-outlined text-3xl">grid_view</span></div><span class="meta-text !text-black">All</span></div>
+                    <div onclick="setCat('Dairy')" class="flex flex-col items-center gap-3 min-w-[80px] cursor-pointer group"><div class="w-16 lg:w-24 h-16 lg:h-24 bg-white border border-gray-100 rounded-2xl flex items-center justify-center group-hover:border-black transition-all"><span class="material-symbols-outlined text-3xl">egg_alt</span></div><span class="meta-text !text-black">Dairy</span></div>
+                    <div onclick="setCat('Pantry')" class="flex flex-col items-center gap-3 min-w-[80px] cursor-pointer group"><div class="w-16 lg:w-24 h-16 lg:h-24 bg-white border border-gray-100 rounded-2xl flex items-center justify-center group-hover:border-black transition-all"><span class="material-symbols-outlined text-3xl">restaurant</span></div><span class="meta-text !text-black">Pantry</span></div>
+                </div>
+            </section>
+
+            <section id="gridStart" class="mb-20 lg:mb-24 scroll-mt-24"><div class="flex items-center gap-4 mb-8"><h2 class="h2 italic tracking-tighter">Inventory</h2><span id="catTag" class="bg-black text-white text-[10px] px-5 py-2 rounded-full uppercase font-black">All Stock</span></div><div id="list" class="product-grid"></div></section>
+            
+            <section class="mb-24 lg:mb-32 px-1"><h2 class="h2 italic mb-10">Daily Fast-Lane</h2><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="essentialsList"></div></section>
+        </div>
+    </main>
+
+    <!-- MOBILE NAV -->
+    <nav class="md:hidden fixed bottom-0 left-0 w-full h-16 glass border-t border-[var(--border)] flex justify-around items-center px-4 z-[150]"><div onclick="window.scrollTo({top:0,behavior:'smooth'})" class="flex flex-col items-center text-black cursor-pointer"><span class="material-symbols-outlined">home</span><span class="text-[9px] font-black mt-1 uppercase">Home</span></div><div onclick="openAccount()" class="flex flex-col items-center text-gray-400 cursor-pointer"><span class="material-symbols-outlined">account_circle</span><span class="text-[9px] font-black mt-1 uppercase">Account</span></div></nav>
+
+    <div id="overlay" class="fixed inset-0 bg-black/60 opacity-0 pointer-events-none transition-opacity duration-500 z-[400]" onclick="closeAll()"></div>
+    
+    <!-- SIDECART -->
+    <div id="sideCart" class="fixed top-0 right-0 h-full w-full md:w-[500px] bg-white flex flex-col shadow-2xl">
+        <div class="p-8 lg:p-10 border-b border-gray-100 flex items-center justify-between"><h3 class="h2 italic">Cart</h3><button onclick="toggleCart(false)" class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center font-black">×</button></div>
+        <div id="deliveryPromo" class="px-8 lg:px-10 py-6 bg-zinc-50 border-b border-gray-100 hidden"><div class="flex justify-between items-center mb-3"><p id="promoText" class="meta-text !text-black !text-[9px] font-black"></p></div><div class="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden"><div id="promoBar" class="h-full bg-green-500 transition-all duration-1000" style="width: 0%"></div></div></div>
+        <div class="flex-1 overflow-y-auto p-8 lg:p-10 no-scrollbar" id="cartBody"></div>
+        <div id="cartFooter" class="p-8 lg:p-10 bg-gray-50 border-t border-gray-100 space-y-8 hidden"><div id="bill" class="h2 italic"></div><button onclick="startCheckout()" class="w-full bg-black text-white btn-pro font-black uppercase text-[12px] tracking-widest">Proceed to Ship</button></div>
+    </div>
+
+    <!-- PDP -->
+    <div id="pdp" class="fixed top-0 right-0 h-full w-full md:w-[600px] bg-white flex flex-col shadow-2xl overflow-hidden">
+        <div class="p-8 border-b border-gray-100 flex items-center justify-between"><h3 class="meta-text !text-black font-black">Product Overview</h3><button onclick="closePDP()" class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center font-black">×</button></div>
+        <div id="pdpContent" class="flex-1 overflow-y-auto no-scrollbar pb-32"></div>
+        <div id="pdpFooter" class="fixed bottom-0 inset-x-0 bg-white border-t border-gray-100 p-8 lg:p-10 flex items-center justify-between z-[510]"></div>
+    </div>
+
+    <!-- CHECKOUT -->
+    <div id="checkoutSheet" class="fixed top-0 right-0 h-full w-full md:w-[600px] bg-white flex flex-col shadow-2xl overflow-hidden">
+        <div class="p-8 border-b border-gray-100 flex items-center justify-between"><h3 id="checkoutTitle" class="h2 italic">Fulfillment</h3><button onclick="closeCheckout()" class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center font-black">×</button></div>
+        <div class="flex-1 overflow-y-auto p-8 lg:p-12 no-scrollbar space-y-12">
+            <div id="shippingView" class="space-y-8"><h4 class="meta-text !text-black font-black">Select Delivery Location</h4><div id="checkoutAddrList" class="grid grid-cols-1 gap-4"></div><button onclick="openAccount(); closeCheckout();" class="w-full border-2 border-black p-4 rounded-full btn-text !text-[10px]">+ Add New Address</button><button onclick="showPayment()" id="proceedToPayBtn" class="w-full bg-black text-white btn-pro btn-text opacity-30 pointer-events-none transition-all">Proceed to Payment</button></div>
+            <div id="paymentView" class="hidden space-y-10"><div class="p-12 bg-gray-50 rounded-3xl text-center border border-gray-100"><div class="w-48 h-48 bg-white border border-gray-200 mx-auto mb-6 flex items-center justify-center"><span class="material-symbols-outlined text-6xl text-gray-100">qr_code_2</span></div><p class="meta-text !text-black !text-[10px] mb-2">Scan & Pay via UPI</p><p class="text-[12px] font-black tracking-widest opacity-60">loudwarehouse@upi</p></div><div class="field-box"><span class="material-symbols-outlined field-icon">receipt_long</span><input id="utr" placeholder="Enter Transaction UTR"></div><button onclick="completeOrder()" class="w-full bg-black text-white btn-pro btn-text">Verify & Confirm</button></div>
+        </div>
+    </div>
+
+    <!-- ACCOUNT -->
+    <div id="sideAccount" class="fixed top-0 right-0 h-full w-full md:w-[500px] bg-white flex flex-col shadow-2xl overflow-hidden">
+        <div class="p-8 lg:p-10 border-b border-gray-100 flex items-center justify-between"><h3 class="h2 italic">Account</h3><button onclick="closeAccount()" class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center font-black">×</button></div>
+        <div class="flex-1 overflow-y-auto p-8 lg:p-10 no-scrollbar space-y-12" id="accountBody">
+            <div id="loginView" class="space-y-8">
+                <h4 class="h2 italic">Identify</h4>
+                <div id="phoneStep" class="space-y-8">
+                    <div class="field-box"><span class="material-symbols-outlined field-icon">smartphone</span><input id="loginPhone" placeholder="Mobile Number"></div>
+                    <button onclick="sendOTP()" class="w-full bg-black text-white btn-pro btn-text">Send OTP</button>
+                </div>
+                <div id="otpStep" class="hidden space-y-8">
+                    <div class="field-box"><span class="material-symbols-outlined field-icon">key</span><input id="loginOTP" placeholder="Enter 4-Digit OTP"></div>
+                    <button onclick="verifyOTP()" class="w-full bg-black text-white btn-pro btn-text">Verify & Login</button>
+                    <button onclick="resetLogin()" class="w-full meta-text !text-gray-400">Change Number</button>
+                </div>
+            </div>
+            <div id="profileView" class="hidden space-y-12 pb-20"><div class="flex items-center justify-between"><div><h5 id="profileName" class="h2 italic mb-1"></h5><p class="meta-text">Member</p></div><button onclick="logout()" class="text-red-500 text-[10px] font-black uppercase">Exit</button></div><div class="space-y-6"><h4 class="meta-text !text-black font-black">Addresses</h4><div id="profileAddrList" class="space-y-3"></div><button onclick="showAddrForm()" class="w-full border-2 border-black p-3 rounded-full btn-text !text-[9px]">+ Add New</button></div><div id="addrForm" class="hidden space-y-4 bg-gray-50 p-6 rounded-3xl"><div class="flex gap-3"><div class="field-box flex-1"><span class="material-symbols-outlined field-icon">home</span><input id="newFlat" placeholder="Flat No"></div><div class="field-box flex-1"><span class="material-symbols-outlined field-icon">layers</span><input id="newFloor" placeholder="Floor"></div></div><div class="field-box"><span class="material-symbols-outlined field-icon">map</span><input id="newStreet" placeholder="Street / Area"></div><button onclick="saveAddr()" class="w-full bg-black text-white py-4 rounded-full btn-text">Save Location</button></div><div class="space-y-6"><h4 class="meta-text !text-black font-black">Order History</h4><div id="orderHist" class="space-y-4"></div></div></div>
+        </div>
+    </div>
+
+    <div id="modal" class="fixed inset-0 bg-white hidden overflow-y-auto z-[700]"><div class="max-width py-20 flex flex-col items-center min-h-screen" id="modalContent"></div></div>
+
+    <script>
+        const SUPABASE_URL = "https://asvelariyhlcrnujtqsq.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_T6-Wlk2PumuS8_xzBRI3ng_KWouOIDi";
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let DATA = [];
+        let loading = true;
+
+        async function fetchProducts() {
+            loading = true;
+            render();
+            const { data, error } = await _supabase
+                .from('products')
+                .select('*');
+            
+            if (error) {
+                console.error('Error fetching products:', error);
+            } else {
+                DATA = (data || []).map(p => ({
+                    id: p.id,
+                    cat: p.category || 'All',
+                    name: p.name,
+                    w: p.weight > 10 ? p.weight + 'g' : p.weight + 'kg',
+                    p: p.price,
+                    d: p.discount_price,
+                    avail: "In Stock",
+                    desc: p.description,
+                    img: [p.image_url || 'https://cdn-icons-png.flaticon.com/512/706/706164.png']
+                }));
+            }
+            loading = false;
+            render();
+        }
+
+        let cart = JSON.parse(localStorage.getItem('cart') || '{}');
+        let user = JSON.parse(localStorage.getItem('user') || 'null');
+        let addresses = JSON.parse(localStorage.getItem('addrs') || '[]');
+        let history = JSON.parse(localStorage.getItem('hist') || '[]');
+        let selAddrIdx = -1; let cat = "All";
+
+        function toggleCart(o) { document.getElementById('sideCart').classList.toggle('open', o); document.getElementById('overlay').style.opacity = o?'1':'0'; document.getElementById('overlay').style.pointerEvents = o?'auto':'none'; if(o) renderCart(); }
+        function openAccount() { document.getElementById('sideAccount').classList.add('open'); document.getElementById('overlay').style.opacity='1'; document.getElementById('overlay').style.pointerEvents='auto'; renderAccount(); }
+        function closeAccount() { document.getElementById('sideAccount').classList.remove('open'); document.getElementById('overlay').style.opacity='0'; document.getElementById('overlay').style.pointerEvents='none'; }
+        function closeAll() { toggleCart(false); closeAccount(); document.getElementById('pdp').classList.remove('open'); document.getElementById('checkoutSheet').classList.remove('open'); document.getElementById('overlay').style.opacity='0'; }
+        function closePDP() { document.getElementById('pdp').classList.remove('open'); document.getElementById('overlay').style.opacity='0'; }
+        function closeCheckout() { document.getElementById('checkoutSheet').classList.remove('open'); document.getElementById('overlay').style.opacity='0'; }
+
+        function sendOTP() {
+            if(!document.getElementById('loginPhone').value) return;
+            document.getElementById('phoneStep').classList.add('hidden');
+            document.getElementById('otpStep').classList.remove('hidden');
+        }
+        function resetLogin() {
+            document.getElementById('phoneStep').classList.remove('hidden');
+            document.getElementById('otpStep').classList.add('hidden');
+        }
+        function verifyOTP() {
+            if(!document.getElementById('loginOTP').value) return;
+            user = { name: "Customer", phone: document.getElementById('loginPhone').value };
+            localStorage.setItem('user', JSON.stringify(user));
+            renderAccount();
+            if(document.getElementById('checkoutSheet').dataset.pending === "true") startCheckout();
+        }
+
+        function renderAccount() {
+            const v = ['loginView', 'profileView']; v.forEach(x => document.getElementById(x).classList.add('hidden'));
+            if(!user) { document.getElementById('loginView').classList.remove('hidden'); resetLogin(); }
+            else {
+                document.getElementById('profileView').classList.remove('hidden');
+                document.getElementById('profileName').innerText = user.name;
+                document.getElementById('userName').innerText = user.name.split(' ')[0];
+                document.getElementById('profileAddrList').innerHTML = addresses.map(a => `<div class="p-4 bg-gray-50 rounded-2xl text-[11px] font-semibold">${a.flat}, Floor ${a.floor}, ${a.street}</div>`).join('') || '<p class="text-xs text-gray-300">No locations.</p>';
+                document.getElementById('orderHist').innerHTML = history.map(h => `<div class="p-5 border border-gray-100 rounded-3xl flex justify-between"><div><p class="meta-text !text-black mb-1">#ORD-${h.id}</p><p class="h3 !text-sm italic">₹${h.total}</p></div><span class="text-[9px] font-black text-green-500 uppercase self-center">${h.status}</span></div>`).join('') || '<p class="text-xs text-gray-300">No history.</p>';
+            }
+        }
+
+            if (loading) {
+                const skeletons = Array(6).fill(0).map(() => `
+                    <div class="bg-white border border-gray-100 p-6 lg:p-8 rounded-3xl flex flex-col">
+                        <div class="aspect-square skeleton rounded-2xl mb-6"></div>
+                        <div class="h-4 skeleton w-3/4 mb-2"></div>
+                        <div class="h-3 skeleton w-1/2 mb-8"></div>
+                        <div class="flex justify-between items-center mt-auto">
+                            <div class="h-6 skeleton w-12"></div>
+                            <div class="h-10 skeleton w-20 rounded-full"></div>
+                        </div>
+                    </div>`).join('');
+                document.getElementById('list').innerHTML = skeletons;
+                document.getElementById('essentialsList').innerHTML = Array(3).fill(0).map(() => `
+                    <div class="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-3xl">
+                        <div class="w-14 h-14 skeleton rounded-lg"></div>
+                        <div class="flex-1 space-y-2"><div class="h-3 skeleton w-2/3"></div><div class="h-2 skeleton w-1/4"></div></div>
+                        <div class="w-16 h-8 skeleton rounded-full"></div>
+                    </div>`).join('');
+                return;
+            }
+
+            const q = (document.getElementById('searchDesktop').value || document.getElementById('searchMobile').value).toLowerCase();
+            const filtered = DATA.filter(p => (cat === "All" || p.cat === cat) && p.name.toLowerCase().includes(q));
+            
+            if (filtered.length === 0) {
+                document.getElementById('list').innerHTML = `<div class="col-span-full py-20 text-center opacity-30 h3">No products found in this section.</div>`;
+            } else {
+                document.getElementById('list').innerHTML = filtered.map(p => {
+                    const n = cart[p.id] || 0;
+                    return `<div class="bg-white border border-gray-100 p-6 lg:p-8 rounded-3xl flex flex-col transition-all active:scale-95" onclick="openPDP(${p.id})">
+                        <div class="aspect-square bg-gray-50 rounded-2xl mb-6 flex items-center justify-center p-10"><img src="${p.img ? p.img[0] : 'https://cdn-icons-png.flaticon.com/512/706/706164.png'}" class="w-full grayscale"/></div>
+                        <h3 class="h3 !text-sm lg:!text-lg mb-1">${p.name}</h3><p class="meta-text mb-8">${p.w}</p>
+                        <div class="flex items-center justify-between mt-auto" onclick="event.stopPropagation()"><div class="flex flex-col"><span class="text-[10px] text-gray-300 line-through">₹${p.p}</span><span class="h3 !text-sm lg:!text-lg">₹${p.d}</span></div>
+                        <div>${n === 0 ? `<button onclick="upd(${p.id},1)" class="bg-black text-white px-7 py-2.5 rounded-full btn-text !text-[11px]">Add</button>` : `<div class="stepper !w-[85px] lg:!w-[105px] !h-[40px] lg:!h-[48px]"><div class="step-btn" onclick="upd(${p.id},-1)">-</div><div class="font-black text-[12px]">${n}</div><div class="step-btn" onclick="upd(${p.id},1)">+</div></div>`}</div></div></div>`
+                }).join('');
+            }
+
+            document.getElementById('essentialsList').innerHTML = DATA.slice(0, 3).map(p => {
+                const n = cart[p.id] || 0;
+                return `<div class="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-3xl group cursor-pointer" onclick="openPDP(${p.id})">
+                    <img src="${p.img ? p.img[0] : 'https://cdn-icons-png.flaticon.com/512/706/706164.png'}" class="w-14 h-14 grayscale"/><div class="flex-1"><h5 class="h3 !text-sm uppercase">${p.name}</h5><p class="meta-text !text-[10px]">₹${p.d}</p></div>
+                    <div onclick="event.stopPropagation()">${n === 0 ? `<button onclick="upd(${p.id},1)" class="bg-black text-white text-[10px] font-black px-5 py-2.5 rounded-full">Add</button>` : `<div class="stepper !w-[80px] !h-[36px]"><div class="step-btn" onclick="upd(${p.id},-1)">-</div><div class="text-[11px] font-black">${n}</div><div class="step-btn" onclick="upd(${p.id},1)">+</div></div>`}</div></div>`
+            }).join('');
+            sync();
+        }
+
+        function openPDP(id) {
+            const p = DATA.find(x=>x.id==id); const n = cart[id] || 0;
+            document.getElementById('pdpContent').innerHTML = `<div class="p-8 lg:p-12"><div class="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory mb-12">${p.img.map(img => `<div class="min-w-full aspect-square bg-gray-50 rounded-3xl snap-center flex items-center justify-center p-20"><img src="${img}" class="w-80 h-80 grayscale"/></div>`).join('')}</div><div class="flex justify-between items-start mb-8"><div><span class="bg-green-50 text-green-600 text-[10px] font-black px-4 py-1.5 rounded-full uppercase mb-4 inline-block">${p.avail}</span><h2 class="h1 !italic !text-3xl">${p.name}</h2></div><div class="text-right"><p class="text-gray-400 line-through text-sm">₹${p.p}</p><p class="h1 italic !text-4xl">₹${p.d}</p></div></div><p class="meta-text mb-10">${p.w} • #WAREHOUSE-${p.id}</p><p class="text-gray-500 mb-16">${p.desc}</p></div>`;
+            document.getElementById('pdpFooter').innerHTML = `<div class="h3 italic">₹${p.d}</div><div id="pdpAction">${n===0 ? `<button onclick="upd(${p.id},1); openPDP(${p.id});" class="bg-black text-white btn-pro btn-text">Add to Cart</button>` : `<div class="stepper !w-[180px] !h-[64px]"><div class="step-btn text-3xl" onclick="upd(${p.id},-1); openPDP(${p.id});">-</div><div class="font-black text-2xl">${n}</div><div class="step-btn text-3xl" onclick="upd(${p.id},1); openPDP(${p.id});">+</div></div>`}</div>`;
+            document.getElementById('pdp').classList.add('open'); document.getElementById('overlay').style.opacity='1';
+        }
+
+        function renderCart() {
+            const ids = Object.keys(cart).filter(i=>cart[i]>0);
+            if(ids.length===0) { document.getElementById('cartBody').innerHTML = `<div class="h-full flex flex-col items-center justify-center h3 opacity-10">Empty Cart</div>`; document.getElementById('cartFooter').classList.add('hidden'); document.getElementById('deliveryPromo').classList.add('hidden'); return; }
+            document.getElementById('cartFooter').classList.remove('hidden'); document.getElementById('deliveryPromo').classList.remove('hidden');
+            document.getElementById('cartBody').innerHTML = ids.map(i => { const p = DATA.find(x=>x.id==i); return `<div class="flex justify-between items-center mb-8"><div><h4 class="h3 !text-lg uppercase">${p.name}</h4><p class="meta-text">₹${p.d}</p></div><div class="stepper"><div class="step-btn" onclick="upd(${i},-1)">-</div><div class="font-black">${cart[i]}</div><div class="step-btn" onclick="upd(${i},1)">+</div></div></div>` }).join('');
+            const sub = ids.reduce((s,i)=>s+(DATA.find(x=>x.id==i).d*cart[i]), 0);
+            document.getElementById('bill').innerText = `Total: ₹${sub + (sub >= 199 ? 0 : 30)}`;
+            document.getElementById('promoBar').style.width = Math.min(100, (sub/199)*100) + "%";
+            document.getElementById('promoText').innerText = sub >= 199 ? "FREE DELIVERY" : `ADD ₹${199-sub} FOR FREE SHIP`;
+        }
+
+        function upd(id, d) { cart[id] = Math.max(0, (cart[id] || 0) + d); localStorage.setItem('cart', JSON.stringify(cart)); render(); if(document.getElementById('sideCart').classList.contains('open')) renderCart(); }
+        function logout() { user = null; localStorage.removeItem('user'); renderAccount(); }
+        function showAddrForm() { document.getElementById('addrForm').classList.toggle('hidden'); }
+        function saveAddr() { 
+            const f = document.getElementById('newFlat').value, fl = document.getElementById('newFloor').value, s = document.getElementById('newStreet').value;
+            if(!f || !s) return; addresses.push({ flat: f, floor: fl, street: s }); localStorage.setItem('addrs', JSON.stringify(addresses)); 
+            document.getElementById('newFlat').value=''; document.getElementById('newFloor').value=''; document.getElementById('newStreet').value='';
+            document.getElementById('addrForm').classList.add('hidden'); renderAccount(); if(document.getElementById('checkoutSheet').classList.contains('open')) renderCheckoutAddrs();
+        }
+
+        function startCheckout() {
+            if(!user) { document.getElementById('checkoutSheet').dataset.pending = "true"; toggleCart(false); openAccount(); return; }
+            document.getElementById('checkoutSheet').dataset.pending = "false";
+            toggleCart(false); document.getElementById('checkoutSheet').classList.add('open'); document.getElementById('overlay').style.opacity='1'; renderCheckoutAddrs();
+        }
+        function renderCheckoutAddrs() {
+            document.getElementById('checkoutAddrList').innerHTML = addresses.map((a,i) => `<div onclick="selectAddr(${i})" class="p-6 border-2 ${selAddrIdx===i?'border-black bg-black text-white':'border-gray-100'} rounded-3xl cursor-pointer hover:border-black transition-all"><h5 class="meta-text ${selAddrIdx===i?'!text-white':''} mb-2">Saved Spot</h5><p class="text-sm font-bold">${a.flat}, Floor ${a.floor}, ${a.street}</p></div>`).join('') || '<p class="meta-text py-10 text-center">No addresses found.</p>';
+            document.getElementById('proceedToPayBtn').classList.toggle('opacity-30', selAddrIdx===-1); document.getElementById('proceedToPayBtn').classList.toggle('pointer-events-none', selAddrIdx===-1);
+        }
+        function selectAddr(i) { selAddrIdx = i; renderCheckoutAddrs(); }
+        function showPayment() { document.getElementById('shippingView').classList.add('hidden'); document.getElementById('paymentView').classList.remove('hidden'); document.getElementById('checkoutTitle').innerText = "Payment"; }
+        function completeOrder() {
+            const ids = Object.keys(cart).filter(i=>cart[i]>0);
+            const sub = ids.reduce((s,i)=>s+(DATA.find(x=>x.id==i).d*cart[i]), 0);
+            const ord = { id: Math.random().toString().slice(2,6), total: sub + (sub >= 199 ? 0 : 30), status: "Packing" };
+            history.unshift(ord); localStorage.setItem('hist', JSON.stringify(history));
+            cart = {}; localStorage.setItem('cart', '{}'); selAddrIdx = -1; render(); closeAll();
+            document.getElementById('modal').classList.remove('hidden');
+            document.getElementById('modalContent').innerHTML = `<div class="w-full max-w-[600px] bg-white p-12 rounded-3xl text-center shadow-2xl"><div class="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-10"><span class="material-symbols-outlined text-5xl">verified</span></div><h2 class="h1 italic mb-4">SUCCESS</h2><div class="flex justify-between mb-16 mt-16 px-4"><div class="tracking-step active"><div class="step-dot"><span class="material-symbols-outlined">receipt_long</span></div><span class="meta-text !text-[8px] font-black">Ordered</span></div><div class="tracking-step active"><div class="step-dot"><span class="material-symbols-outlined">package_2</span></div><span class="meta-text !text-[8px] font-black">Packing</span></div><div class="tracking-step"><div class="step-dot"><span class="material-symbols-outlined">delivery_dining</span></div><span class="meta-text !text-[8px] font-black">On Way</span></div></div><button onclick="location.reload()" class="w-full bg-black text-white py-6 rounded-full btn-text uppercase">Close</button></div>`;
+        }
+
+        function sync() { const n = Object.values(cart).reduce((a,b)=>a+b, 0); document.getElementById('badge').innerText = n; document.getElementById('badge').classList.toggle('hidden', n===0); }
+        function scrollToGrid() { document.getElementById('gridStart').scrollIntoView({ behavior:'smooth' }); }
+        function setCat(c) { cat = c; render(); }
+        window.onload = () => {
+            sync();
+            fetchProducts();
+            if(user) renderAccount();
+        };
+    </script>
+</body>
+</html>
