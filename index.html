@@ -171,31 +171,7 @@
                 <h4 class="meta-text !text-black font-black">Select Delivery Location</h4>
                 <div id="checkoutAddrList" class="grid grid-cols-1 gap-4"></div>
                 <button onclick="openAccount(); closeCheckout();" class="w-full border-2 border-black p-4 rounded-full btn-text !text-[10px]">+ Add New Address</button>
-                <button onclick="showCouponView()" id="proceedToCouponBtn" class="w-full bg-black text-white btn-pro btn-text opacity-30 pointer-events-none transition-all">Proceed to Coupons</button>
-            </div>
-
-            <!-- COUPONS -->
-            <div id="couponView" class="hidden space-y-10">
-                <h4 class="meta-text !text-black font-black">Apply Promo Code</h4>
-                <div class="bg-gray-50 p-6 rounded-3xl border border-gray-100">
-                    <div class="flex gap-4">
-                        <input id="couponInput" type="text" placeholder="Enter Code" class="flex-1 !bg-white !p-4 !pl-6 rounded-2xl font-black uppercase text-sm border-none outline-none">
-                        <button onclick="applyCoupon()" class="bg-black text-white px-8 rounded-2xl btn-text !text-[10px]">Apply</button>
-                    </div>
-                    <p id="couponMsg" class="text-[9px] font-black uppercase mt-4 hidden"></p>
-                </div>
-                <div class="space-y-4">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Available Offers</p>
-                    <div onclick="setCoupon('LOUD100')" class="p-5 border border-dashed border-gray-200 rounded-3xl cursor-pointer hover:border-black transition-all group">
-                        <div class="flex justify-between items-center"><p class="font-black text-sm uppercase">LOUD100</p><span class="material-symbols-outlined text-gray-300 group-hover:text-black">add_circle</span></div>
-                        <p class="text-[9px] text-gray-400 uppercase">Flat ₹100 OFF on your order</p>
-                    </div>
-                    <div onclick="setCoupon('FREE')" class="p-5 border border-dashed border-gray-200 rounded-3xl cursor-pointer hover:border-black transition-all group">
-                        <div class="flex justify-between items-center"><p class="font-black text-sm uppercase">FREE</p><span class="material-symbols-outlined text-gray-300 group-hover:text-black">add_circle</span></div>
-                        <p class="text-[9px] text-gray-400 uppercase">Zero Delivery Charges</p>
-                    </div>
-                </div>
-                <button onclick="showPayment()" class="w-full bg-black text-white btn-pro btn-text">Continue to Payment</button>
+                <button onclick="showPayment()" id="proceedToPayBtn" class="w-full bg-black text-white btn-pro btn-text opacity-30 pointer-events-none transition-all">Proceed to Payment</button>
             </div>
 
             <!-- PAYMENT -->
@@ -652,20 +628,21 @@
         
         async function completeOrder() {
             const ids = Object.keys(cart).filter(i=>cart[i]>0);
-            const sub = ids.reduce((s,i)=>s+(DATA.find(x=>x.id==i).d*cart[i]), 0);
+            const sub = ids.reduce((s,i)=>{
+                const p = DATA.find(x=>x.id==i);
+                return s + (p ? p.d * cart[i] : 0);
+            }, 0);
             
-            let discountPct = 30;
-            if (sub >= 2000) discountPct = 50;
-            else if (sub >= 1000) discountPct = 40;
-            
-            const tierDiscount = Math.floor(sub * (discountPct / 100));
-            let deliveryFee = sub >= 199 ? 0 : 30;
-            let couponDiscount = 0;
-
-            if (appliedCoupon === 'LOUD100') couponDiscount = 100;
-            if (appliedCoupon === 'FREE') deliveryFee = 0;
-
-            const total = Math.max(0, (sub - tierDiscount - couponDiscount) + deliveryFee);
+            let discountPct = 0;
+            if (appliedCoupon === 'LOUD30') discountPct = 30;
+            if (appliedCoupon === 'LOUD40') discountPct = 40;
+            if (appliedCoupon === 'LOUD50') discountPct = 50;
+            const totalSavings = Math.floor(sub * (discountPct / 100));
+            const platformFee = 12;
+            const deliveryFee = sub > 100 ? 0 : 75;
+            const taxableAmount = sub - totalSavings;
+            const gst = Math.floor(taxableAmount * 0.05);
+            const total = taxableAmount + platformFee + deliveryFee + gst;
 
             const orderItems = ids.map(i => { const p = DATA.find(x=>x.id==i); return { id: i, name: p.name, qty: cart[i], price: p.d }; });
             const selAddr = addresses[selAddrIdx];
@@ -676,8 +653,8 @@
                 items: orderItems, 
                 address: selAddr, 
                 utr: document.getElementById('utr').value || 'UPI-PENDING',
-                discount_applied: tierDiscount + couponDiscount,
-                discount_tier: discountPct + "%" + (appliedCoupon ? ` + ${appliedCoupon}` : '')
+                discount_applied: totalSavings,
+                discount_tier: (discountPct || 0) + "%" + (appliedCoupon ? ` (${appliedCoupon})` : '')
             };
 
             const { data, error } = await _supabase.from('orders').insert([orderData]).select();
