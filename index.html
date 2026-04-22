@@ -90,10 +90,8 @@
             <!-- CATEGORY PODS -->
             <section class="mb-10 lg:mb-16">
                 <h4 class="meta-text mb-8 !text-black font-black">Warehouse Sections</h4>
-                <div class="flex gap-4 lg:gap-8 overflow-x-auto no-scrollbar pb-6">
-                    <div onclick="setCat('All')" class="flex flex-col items-center gap-3 min-w-[80px] cursor-pointer group"><div class="w-16 lg:w-24 h-16 lg:h-24 bg-white border border-gray-100 rounded-2xl flex items-center justify-center group-hover:border-black transition-all"><span class="material-symbols-outlined text-3xl">grid_view</span></div><span class="meta-text !text-black">All</span></div>
-                    <div onclick="setCat('Dairy')" class="flex flex-col items-center gap-3 min-w-[80px] cursor-pointer group"><div class="w-16 lg:w-24 h-16 lg:h-24 bg-white border border-gray-100 rounded-2xl flex items-center justify-center group-hover:border-black transition-all"><span class="material-symbols-outlined text-3xl">egg_alt</span></div><span class="meta-text !text-black">Dairy</span></div>
-                    <div onclick="setCat('Pantry')" class="flex flex-col items-center gap-3 min-w-[80px] cursor-pointer group"><div class="w-16 lg:w-24 h-16 lg:h-24 bg-white border border-gray-100 rounded-2xl flex items-center justify-center group-hover:border-black transition-all"><span class="material-symbols-outlined text-3xl">restaurant</span></div><span class="meta-text !text-black">Pantry</span></div>
+                <div class="flex gap-4 lg:gap-8 overflow-x-auto no-scrollbar pb-6" id="categoryTabs">
+                    <!-- Dynamic Categories will appear here -->
                 </div>
             </section>
 
@@ -289,7 +287,7 @@
                 document.getElementById('list').innerHTML = filtered.map(p => {
                     const n = cart[p.id] || 0;
                     return `<div class="bg-white border border-gray-100 p-6 lg:p-8 rounded-3xl flex flex-col transition-all active:scale-95" onclick="openPDP(${p.id})">
-                        <div class="aspect-square bg-gray-50 rounded-2xl mb-6 flex items-center justify-center p-10"><img src="${p.img ? p.img[0] : 'https://cdn-icons-png.flaticon.com/512/706/706164.png'}" class="w-full"/></div>
+                        <div class="aspect-square bg-gray-50 rounded-2xl mb-6 flex items-center justify-center p-10"><img src="${p.img ? p.img[0] : 'https://cdn-icons-png.flaticon.com/512/706/706164.png'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/706/706164.png'" class="w-full"/></div>
                         <h3 class="h3 !text-sm lg:!text-lg mb-1">${p.name}</h3><p class="meta-text mb-8">${p.w}</p>
                         <div class="flex items-center justify-between mt-auto" onclick="event.stopPropagation()"><div class="flex flex-col"><span class="text-[10px] text-gray-300 line-through">₹${p.p}</span><span class="h3 !text-sm lg:!text-lg">₹${p.d}</span></div>
                         <div>${n === 0 ? `<button onclick="upd(${p.id},1)" class="bg-black text-white px-7 py-2.5 rounded-full btn-text !text-[11px]">Add</button>` : `<div class="stepper !w-[85px] lg:!w-[105px] !h-[40px] lg:!h-[48px]"><div class="step-btn" onclick="upd(${p.id},-1)">-</div><div class="font-black text-[12px]">${n}</div><div class="step-btn" onclick="upd(${p.id},1)">+</div></div>`}</div></div></div>`
@@ -299,15 +297,38 @@
             document.getElementById('essentialsList').innerHTML = DATA.slice(0, 3).map(p => {
                 const n = cart[p.id] || 0;
                 return `<div class="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-3xl group cursor-pointer" onclick="openPDP(${p.id})">
-                    <img src="${p.img ? p.img[0] : 'https://cdn-icons-png.flaticon.com/512/706/706164.png'}" class="w-14 h-14"/><div class="flex-1"><h5 class="h3 !text-sm uppercase">${p.name}</h5><p class="meta-text !text-[10px]">₹${p.d}</p></div>
+                    <img src="${p.img ? p.img[0] : 'https://cdn-icons-png.flaticon.com/512/706/706164.png'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/706/706164.png'" class="w-14 h-14"/><div class="flex-1"><h5 class="h3 !text-sm uppercase">${p.name}</h5><p class="meta-text !text-[10px]">₹${p.d}</p></div>
                     <div onclick="event.stopPropagation()">${n === 0 ? `<button onclick="upd(${p.id},1)" class="bg-black text-white text-[10px] font-black px-5 py-2.5 rounded-full">Add</button>` : `<div class="stepper !w-[80px] !h-[36px]"><div class="step-btn" onclick="upd(${p.id},-1)">-</div><div class="text-[11px] font-black">${n}</div><div class="step-btn" onclick="upd(${p.id},1)">+</div></div>`}</div></div>`
             }).join('');
+            renderCategories();
             sync();
+        }
+
+        function renderCategories() {
+            const cats = ["All", ...new Set(DATA.map(p => p.cat))];
+            const icons = {
+                "All": "grid_view",
+                "Dairy": "egg_alt",
+                "Pantry": "restaurant",
+                "Produce": "eco",
+                "Beverages": "local_bar",
+                "Snacks": "fastfood",
+                "Household": "home_repair_service",
+                "Personal Care": "face"
+            };
+            document.getElementById('categoryTabs').innerHTML = cats.map(c => `
+                <div onclick="setCat('${c}')" class="flex flex-col items-center gap-3 min-w-[80px] cursor-pointer group">
+                    <div class="w-16 lg:w-24 h-16 lg:h-24 ${cat === c ? 'bg-black text-white' : 'bg-white text-black'} border border-gray-100 rounded-2xl flex items-center justify-center group-hover:border-black transition-all">
+                        <span class="material-symbols-outlined text-3xl">${icons[c] || 'category'}</span>
+                    </div>
+                    <span class="meta-text !text-black">${c}</span>
+                </div>
+            `).join('');
         }
 
         function openPDP(id) {
             const p = DATA.find(x=>x.id==id); const n = cart[id] || 0;
-            document.getElementById('pdpContent').innerHTML = `<div class="p-8 lg:p-12"><div class="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory mb-12">${p.img.map(img => `<div class="min-w-full aspect-square bg-gray-50 rounded-3xl snap-center flex items-center justify-center p-20"><img src="${img}" class="w-80 h-80"/></div>`).join('')}</div><div class="flex justify-between items-start mb-8"><div><span class="bg-green-50 text-green-600 text-[10px] font-black px-4 py-1.5 rounded-full uppercase mb-4 inline-block">${p.avail}</span><h2 class="h1 !italic !text-3xl">${p.name}</h2></div><div class="text-right"><p class="text-gray-400 line-through text-sm">₹${p.p}</p><p class="h1 italic !text-4xl">₹${p.d}</p></div></div><p class="meta-text mb-10">${p.w} • #WAREHOUSE-${p.id}</p><p class="text-gray-500 mb-16">${p.desc}</p></div>`;
+            document.getElementById('pdpContent').innerHTML = `<div class="p-8 lg:p-12"><div class="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory mb-12">${p.img.map(img => `<div class="min-w-full aspect-square bg-gray-50 rounded-3xl snap-center flex items-center justify-center p-20"><img src="${img}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/706/706164.png'" class="w-80 h-80"/></div>`).join('')}</div><div class="flex justify-between items-start mb-8"><div><span class="bg-green-50 text-green-600 text-[10px] font-black px-4 py-1.5 rounded-full uppercase mb-4 inline-block">${p.avail}</span><h2 class="h1 !italic !text-3xl">${p.name}</h2></div><div class="text-right"><p class="text-gray-400 line-through text-sm">₹${p.p}</p><p class="h1 italic !text-4xl">₹${p.d}</p></div></div><p class="meta-text mb-10">${p.w} • #WAREHOUSE-${p.id}</p><p class="text-gray-500 mb-16">${p.desc}</p></div>`;
             document.getElementById('pdpFooter').innerHTML = `<div class="h3 italic">₹${p.d}</div><div id="pdpAction">${n===0 ? `<button onclick="upd(${p.id},1); openPDP(${p.id});" class="bg-black text-white btn-pro btn-text">Add to Cart</button>` : `<div class="stepper !w-[180px] !h-[64px]"><div class="step-btn text-3xl" onclick="upd(${p.id},-1); openPDP(${p.id});">-</div><div class="font-black text-2xl">${n}</div><div class="step-btn text-3xl" onclick="upd(${p.id},1); openPDP(${p.id});">+</div></div>`}</div>`;
             document.getElementById('pdp').classList.add('open'); toggleOverlay(true);
         }
