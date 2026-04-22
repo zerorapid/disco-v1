@@ -14,9 +14,10 @@
         .h1 { font-weight: 900; letter-spacing: -0.05em; text-transform: uppercase; }
         .card { background: #111; border-radius: 24px; border: 1px solid #222; transition: all 0.3s; }
         .card:hover { border-color: #444; background: #161616; }
-        .input-field { background: #1a1a1a; border: 1px solid #333; color: white; padding: 14px; border-radius: 12px; width: 100%; font-weight: 600; }
+        .input-field { background: #1a1a1a; border: 1px solid #333; color: white; padding: 14px; border-radius: 12px; width: 100%; font-weight: 600; transition: all 0.2s; }
         .input-field:focus { border-color: white; outline: none; background: #222; }
-        .btn-primary { background: white; color: black; font-weight: 900; padding: 16px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.2s; }
+        .input-field:invalid { border-color: #ef4444; background: #1f1111; }
+        .btn-primary { background: white; color: black; font-weight: 900; padding: 16px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.2s; cursor: pointer; }
         .btn-primary:active { scale: 0.95; }
         .sidebar-link { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 12px; color: #888; font-weight: 700; font-size: 13px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
         .sidebar-link.active { background: white; color: black; }
@@ -89,30 +90,30 @@
             
             <h3 id="modalTitle" class="h1 italic text-4xl mb-12">Add Product</h3>
             
-            <div id="modalContent" class="grid grid-cols-2 gap-6 max-h-[60vh] overflow-y-auto no-scrollbar pr-4">
+            <form id="productForm" onsubmit="event.preventDefault(); submitProduct();" class="grid grid-cols-2 gap-6 max-h-[60vh] overflow-y-auto no-scrollbar pr-4">
                 <div class="col-span-2">
                     <label class="text-[9px] font-black uppercase text-white/30 mb-2 block">Product Name</label>
-                    <input type="text" id="m-name" class="input-field" placeholder="e.g. Fresh Milk">
+                    <input type="text" id="m-name" class="input-field" placeholder="e.g. Fresh Milk" required minlength="3">
                 </div>
                 <div>
                     <label class="text-[9px] font-black uppercase text-white/30 mb-2 block">Base Price (₹)</label>
-                    <input type="number" id="m-price" class="input-field" placeholder="100">
+                    <input type="number" id="m-price" class="input-field" placeholder="100" required min="1">
                 </div>
                 <div>
                     <label class="text-[9px] font-black uppercase text-white/30 mb-2 block">Discount Price (₹)</label>
-                    <input type="number" id="m-discount" class="input-field" placeholder="89">
+                    <input type="number" id="m-discount" class="input-field" placeholder="89" required min="0">
                 </div>
                 <div>
                     <label class="text-[9px] font-black uppercase text-white/30 mb-2 block">Stock Level</label>
-                    <input type="number" id="m-stock" class="input-field" placeholder="25">
+                    <input type="number" id="m-stock" class="input-field" placeholder="25" required min="0">
                 </div>
                 <div>
                     <label class="text-[9px] font-black uppercase text-white/30 mb-2 block">Weight (grams)</label>
-                    <input type="number" id="m-weight" class="input-field" placeholder="500">
+                    <input type="number" id="m-weight" class="input-field" placeholder="500" required min="1">
                 </div>
                 <div class="col-span-2">
                     <label class="text-[9px] font-black uppercase text-white/30 mb-2 block">Category</label>
-                    <select id="m-category" class="input-field">
+                    <select id="m-category" class="input-field" required>
                         <option value="Dairy">Dairy</option>
                         <option value="Pantry">Pantry</option>
                         <option value="Produce">Produce</option>
@@ -123,17 +124,16 @@
                 </div>
                 <div class="col-span-2">
                     <label class="text-[9px] font-black uppercase text-white/30 mb-2 block">Image URL</label>
-                    <input type="text" id="m-img" class="input-field" placeholder="https://cdn...">
+                    <input type="url" id="m-img" class="input-field" placeholder="https://cdn..." required>
                 </div>
                 <div class="col-span-2">
                     <label class="text-[9px] font-black uppercase text-white/30 mb-2 block">Description</label>
-                    <textarea id="m-desc" class="input-field h-24 resize-none" placeholder="Product details..."></textarea>
+                    <textarea id="m-desc" class="input-field h-24 resize-none" placeholder="Product details..." required minlength="10"></textarea>
                 </div>
-            </div>
-
-            <div class="mt-12 flex gap-4">
-                <button id="modalActionBtn" onclick="submitProduct()" class="flex-1 btn-primary">Create Product</button>
-            </div>
+                <div class="mt-12 col-span-2">
+                    <button type="submit" id="modalActionBtn" class="w-full btn-primary">Create Product</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -330,10 +330,21 @@
         }
 
         async function submitProduct() {
+            const form = document.getElementById('productForm');
+            if (!form.reportValidity()) return;
+
+            const price = parseInt(document.getElementById('m-price').value);
+            const discount = parseInt(document.getElementById('m-discount').value);
+
+            if (discount > price) {
+                showToast("Error: Discount > Price 🔴");
+                return;
+            }
+
             const pData = {
                 name: document.getElementById('m-name').value,
-                price: parseInt(document.getElementById('m-price').value),
-                discount_price: parseInt(document.getElementById('m-discount').value),
+                price: price,
+                discount_price: discount,
                 stock: parseInt(document.getElementById('m-stock').value),
                 weight: parseInt(document.getElementById('m-weight').value),
                 category: document.getElementById('m-category').value,

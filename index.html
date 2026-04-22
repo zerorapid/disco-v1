@@ -13,6 +13,11 @@
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         :root { --bg: #f9f9f9; --surface: #ffffff; --ink: #000000; --muted: #5e5e5e; --border: #eeeeee; --accent: #22c55e; }
+        
+        /* VALIDATION STYLES */
+        input:invalid { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
+        input:focus:invalid { border-color: #ef4444 !important; outline: none; }
+        
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; display: inline-block; line-height: 1; vertical-align: middle; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--ink); -webkit-tap-highlight-color: transparent; font-size: 16px; line-height: 1.5; font-weight: 400; margin: 0; padding: 0; overflow-x: hidden; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -23,7 +28,7 @@
         h3, .h3 { font-size: 24px; line-height: 1.2; font-weight: 700; }
         .meta-text { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; }
 
-        input { font-size: 16px !important; outline: none; border: 1px solid var(--border); background: white; padding: 18px 16px 18px 64px !important; width: 100%; border-radius: 14px; transition: border-color 0.3s; }
+        input { font-size: 16px !important; outline: none; border: 1px solid var(--border); background: white; padding: 18px 16px 18px 64px !important; width: 100%; border-radius: 14px; transition: all 0.3s; }
         input:focus { border-color: black; }
         .field-box { position: relative; width: 100%; display: flex; align-items: center; }
         .field-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #bbb; font-size: 24px; pointer-events: none; z-index: 10; }
@@ -200,7 +205,7 @@
                     <p class="meta-text !text-black !text-[10px] mb-2">Scan & Pay via UPI</p>
                     <p class="text-[12px] font-black tracking-widest opacity-60">9441276604@ybl</p>
                 </div>
-                <div class="field-box"><span class="material-symbols-outlined field-icon">receipt_long</span><input id="utr" placeholder="Enter Transaction UTR"></div>
+                <div class="field-box"><span class="material-symbols-outlined field-icon">receipt_long</span><input id="utr" placeholder="Enter Transaction UTR" required minlength="6" oninput="this.value = this.value.toUpperCase()"></div>
                 <button onclick="completeOrder()" class="w-full bg-black text-white btn-pro btn-text">Verify & Confirm</button>
             </div>
         </div>
@@ -213,11 +218,11 @@
             <div id="loginView" class="space-y-8">
                 <h4 class="h2 italic">Identify</h4>
                 <div id="phoneStep" class="space-y-8">
-                    <div class="field-box"><span class="material-symbols-outlined field-icon">smartphone</span><input id="loginPhone" placeholder="Mobile Number"></div>
+                    <div class="field-box"><span class="material-symbols-outlined field-icon">smartphone</span><input id="loginPhone" type="tel" placeholder="10-Digit Mobile Number" required pattern="[0-9]{10}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></div>
                     <button onclick="sendOTP()" class="w-full bg-black text-white btn-pro btn-text">Send OTP</button>
                 </div>
                 <div id="otpStep" class="hidden space-y-8">
-                    <div class="field-box"><span class="material-symbols-outlined field-icon">key</span><input id="loginOTP" placeholder="Enter 4-Digit OTP"></div>
+                    <div class="field-box"><span class="material-symbols-outlined field-icon">key</span><input id="loginOTP" type="tel" placeholder="Enter 4-Digit OTP" required pattern="[0-9]{4}" maxlength="4" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></div>
                     <button onclick="verifyOTP()" class="w-full bg-black text-white btn-pro btn-text">Verify & Login</button>
                     <button onclick="resetLogin()" class="w-full meta-text !text-gray-400">Change Number</button>
                 </div>
@@ -237,7 +242,7 @@
                     <span class="material-symbols-outlined group-hover:scale-125 transition-transform">card_giftcard</span>
                 </button>
 
-                <div class="space-y-6"><h4 class="meta-text !text-black font-black">Addresses</h4><div id="profileAddrList" class="space-y-3"></div><button onclick="showAddrForm()" class="w-full border-2 border-black p-3 rounded-full btn-text !text-[9px]">+ Add New</button></div><div id="addrForm" class="hidden space-y-4 bg-gray-50 p-6 rounded-3xl"><div class="flex gap-3"><div class="field-box flex-1"><span class="material-symbols-outlined field-icon">home</span><input id="newFlat" placeholder="Flat No"></div><div class="field-box flex-1"><span class="material-symbols-outlined field-icon">layers</span><input id="newFloor" placeholder="Floor"></div></div><div class="field-box"><span class="material-symbols-outlined field-icon">map</span><input id="newStreet" placeholder="Street / Area"></div><button onclick="saveAddr()" class="w-full bg-black text-white py-4 rounded-full btn-text">Save Location</button></div><div class="space-y-6"><h4 class="meta-text !text-black font-black">Order History</h4><div id="orderHist" class="space-y-4"></div><button onclick="logout()" class="text-red-500 text-[10px] font-black uppercase mt-10">Exit Account</button></div>
+                <div class="space-y-6"><h4 class="meta-text !text-black font-black">Addresses</h4><div id="profileAddrList" class="space-y-3"></div><button onclick="showAddrForm()" class="w-full border-2 border-black p-3 rounded-full btn-text !text-[9px]">+ Add New</button></div><div id="addrForm" class="hidden space-y-4 bg-gray-50 p-6 rounded-3xl"><div class="flex gap-3"><div class="field-box flex-1"><span class="material-symbols-outlined field-icon">home</span><input id="newFlat" placeholder="Flat No" required></div><div class="field-box flex-1"><span class="material-symbols-outlined field-icon">layers</span><input id="newFloor" placeholder="Floor"></div></div><div class="field-box"><span class="material-symbols-outlined field-icon">map</span><input id="newStreet" placeholder="Street / Area" required></div><button onclick="saveAddr()" class="w-full bg-black text-white py-4 rounded-full btn-text">Save Location</button></div><div class="space-y-6"><h4 class="meta-text !text-black font-black">Order History</h4><div id="orderHist" class="space-y-4"></div><button onclick="logout()" class="text-red-500 text-[10px] font-black uppercase mt-10">Exit Account</button></div>
             </div>
         </div>
     </div>
