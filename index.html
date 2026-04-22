@@ -660,6 +660,14 @@
             const { data, error } = await _supabase.from('orders').insert([orderData]).select();
             if (error) return alert("Order failed to sync.");
 
+            // INVENTORY AUTO-DRAIN
+            for (const item of orderItems) {
+                const { data: p } = await _supabase.from('products').select('stock').eq('id', item.id).single();
+                if (p) {
+                    await _supabase.from('products').update({ stock: Math.max(0, (p.stock || 0) - item.qty) }).eq('id', item.id);
+                }
+            }
+
             const newOrder = data[0]; history.unshift(newOrder); localStorage.setItem('hist', JSON.stringify(history));
             cart = {}; localStorage.setItem('cart', '{}'); selAddrIdx = -1; appliedCoupon = null; render(); closeAll();
             document.getElementById('modal').classList.remove('hidden');
@@ -669,7 +677,7 @@
                         <span class="material-symbols-outlined text-5xl">verified</span>
                     </div>
                     <h2 class="h1 italic mb-2">SUCCESS</h2>
-                    <p class="meta-text mb-4 text-green-500 font-black">YOU SAVED ₹${tierDiscount + couponDiscount}!</p>
+                    <p class="meta-text mb-4 text-green-500 font-black">YOU SAVED ₹${totalSavings}!</p>
                     <p class="meta-text mb-10">Order #ORD-${newOrder.id} confirmed</p>
                     <div class="flex justify-between mb-16 mt-16 px-4">
                         <div class="tracking-step active"><div class="step-dot"><span class="material-symbols-outlined">receipt_long</span></div><span class="meta-text !text-[8px] font-black">Ordered</span></div>

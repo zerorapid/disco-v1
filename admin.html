@@ -41,6 +41,9 @@
             <div onclick="setView('orders')" id="nav-orders" class="sidebar-link">
                 <span class="material-symbols-outlined">notifications_active</span> Live Orders
             </div>
+            <div onclick="setView('analytics')" id="nav-analytics" class="sidebar-link">
+                <span class="material-symbols-outlined">analytics</span> Analytics
+            </div>
             <div onclick="setView('categories')" id="nav-categories" class="sidebar-link">
                 <span class="material-symbols-outlined">category</span> Categories
             </div>
@@ -175,6 +178,7 @@
             const area = document.getElementById('contentArea');
             if (currentView === 'inventory') renderInventory(area);
             else if (currentView === 'orders') renderOrders(area);
+            else if (currentView === 'analytics') renderAnalytics(area);
             else if (currentView === 'categories') renderCategories(area);
         }
 
@@ -205,6 +209,78 @@
                             </div>
                         </div>
                     `).join('')}
+                </div>
+            `;
+        }
+
+        function renderAnalytics(el) {
+            const totalRevenue = ORDERS.reduce((s, o) => s + (o.total_amount || 0), 0);
+            const totalOrders = ORDERS.length;
+            const itemCounts = {};
+            const couponCounts = {};
+            
+            ORDERS.forEach(o => {
+                if (o.items) {
+                    o.items.forEach(i => {
+                        itemCounts[i.name] = (itemCounts[i.name] || 0) + (i.qty || 0);
+                    });
+                }
+                if (o.discount_tier) {
+                    const match = o.discount_tier.match(/\((LOUD\d+)\)/);
+                    if (match) {
+                        const code = match[1];
+                        couponCounts[code] = (couponCounts[code] || 0) + 1;
+                    }
+                }
+            });
+            
+            const bestSellers = Object.entries(itemCounts).sort((a,b) => b[1]-a[1]).slice(0, 5);
+            
+            el.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+                    <div class="card p-10 text-center">
+                        <p class="text-[9px] font-black uppercase text-white/30 tracking-[0.3em] mb-4">Total Revenue</p>
+                        <h3 class="h1 italic text-6xl text-green-500">₹${totalRevenue}</h3>
+                    </div>
+                    <div class="card p-10 text-center">
+                        <p class="text-[9px] font-black uppercase text-white/30 tracking-[0.3em] mb-4">Total Orders</p>
+                        <h3 class="h1 italic text-6xl">${totalOrders}</h3>
+                    </div>
+                    <div class="card p-10 text-center">
+                        <p class="text-[9px] font-black uppercase text-white/30 tracking-[0.3em] mb-4">Avg. Order Value</p>
+                        <h3 class="h1 italic text-6xl">₹${totalOrders > 0 ? Math.floor(totalRevenue / totalOrders) : 0}</h3>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="card p-10">
+                        <h4 class="h1 italic text-2xl mb-10 pb-6 border-b border-white/5">Best Selling Items</h4>
+                        <div class="space-y-6">
+                            ${bestSellers.map(([name, qty]) => `
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-white/70">${name}</span>
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-32 h-2 bg-white/5 rounded-full overflow-hidden">
+                                            <div class="h-full bg-orange-500" style="width: ${(qty / bestSellers[0][1]) * 100}%"></div>
+                                        </div>
+                                        <span class="font-black text-sm">${qty} Units</span>
+                                    </div>
+                                </div>
+                            `).join('') || '<p class="opacity-10 py-10 text-center">NO DATA</p>'}
+                        </div>
+                    </div>
+                    
+                    <div class="card p-10">
+                        <h4 class="h1 italic text-2xl mb-10 pb-6 border-b border-white/5">Coupon Performance</h4>
+                        <div class="space-y-6">
+                            ${Object.entries(couponCounts).map(([code, count]) => `
+                                <div class="flex justify-between items-center">
+                                    <span class="font-black text-sm uppercase italic">${code}</span>
+                                    <span class="bg-white/5 px-4 py-2 rounded-xl text-[10px] font-black">${count} Times Used</span>
+                                </div>
+                            `).join('') || '<p class="opacity-10 py-10 text-center">NO DATA</p>'}
+                        </div>
+                    </div>
                 </div>
             `;
         }
