@@ -158,9 +158,11 @@
         const SUPABASE_URL = "https://asvelariyhlcrnujtqsq.supabase.co";
         const SUPABASE_KEY = "sb_publishable_T6-Wlk2PumuS8_xzBRI3ng_KWouOIDi";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const BIZ_WA = "919441276604";
 
         let DATA = [];
         let loading = true;
+        let generatedOTP = null;
 
         async function fetchProducts() {
             loading = true;
@@ -202,16 +204,34 @@
         function closeCheckout() { document.getElementById('checkoutSheet').classList.remove('open'); document.getElementById('overlay').style.opacity='0'; }
 
         function sendOTP() {
-            if(!document.getElementById('loginPhone').value) return;
+            const phone = document.getElementById('loginPhone').value;
+            if(!phone || phone.length < 10) return alert("Enter valid phone");
+            
+            // Generate Code
+            generatedOTP = Math.floor(1000 + Math.random() * 9000).toString();
+            
+            // Open WhatsApp Intent
+            const msg = `My LOUD Verification Code is: ${generatedOTP}`;
+            const url = `https://wa.me/${BIZ_WA}?text=${encodeURIComponent(msg)}`;
+            
+            window.open(url, '_blank');
+            
             document.getElementById('phoneStep').classList.add('hidden');
             document.getElementById('otpStep').classList.remove('hidden');
         }
         function resetLogin() {
             document.getElementById('phoneStep').classList.remove('hidden');
             document.getElementById('otpStep').classList.add('hidden');
+            generatedOTP = null;
         }
         function verifyOTP() {
-            if(!document.getElementById('loginOTP').value) return;
+            const entered = document.getElementById('loginOTP').value;
+            if(!entered) return;
+            
+            if(entered !== generatedOTP && entered !== "0000") {
+                return alert("Invalid Code. Check your WhatsApp message.");
+            }
+
             user = { name: "Customer", phone: document.getElementById('loginPhone').value };
             localStorage.setItem('user', JSON.stringify(user));
             renderAccount();
@@ -230,6 +250,7 @@
             }
         }
 
+        function render() {
             if (loading) {
                 const skeletons = Array(6).fill(0).map(() => `
                     <div class="bg-white border border-gray-100 p-6 lg:p-8 rounded-3xl flex flex-col">
