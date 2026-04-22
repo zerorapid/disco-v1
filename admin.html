@@ -97,10 +97,9 @@
 
     <script>
         const SB_URL = "https://asvelariyhlcrnujtqsq.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzdmVsYXJpeWhsY3JudWp0cXNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzNTkxMTAsImV4cCI6MjA2MDkzNTExMH0.4N8-4zLpU9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9"; // Placeholder, real key injected below
+        const SB_KEY = "sb_publishable_T6-Wlk2PumuS8_xzBRI3ng_KWouOIDi";
         
-        // We'll use the user's existing config from the main page
-        const _supabase = supabase.createClient(SB_URL, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzdmVsYXJpeWhsY3JudWp0cXNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzNTkxMTAsImV4cCI6MjA2MDkzNTExMH0.4N8-4zLpU9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9");
+        const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         let DATA = [];
         let ORDERS = [];
