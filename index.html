@@ -110,7 +110,7 @@
     <nav class="md:hidden fixed bottom-0 left-0 w-full h-16 glass border-t border-[var(--border)] flex justify-around items-center px-4 z-[150]"><div onclick="window.scrollTo({top:0,behavior:'smooth'})" class="flex flex-col items-center text-black cursor-pointer"><span class="material-symbols-outlined">home</span><span class="text-[9px] font-black mt-1 uppercase">Home</span></div><div onclick="openAccount()" class="flex flex-col items-center text-gray-400 cursor-pointer"><span class="material-symbols-outlined">account_circle</span><span class="text-[9px] font-black mt-1 uppercase">Account</span></div></nav>
 
     <!-- ADMIN PANEL SHEET -->
-    <div id="adminPanel" class="sheet">
+    <div id="adminPanel" class="sheet hidden">
         <div class="sheet-header">
             <h2 class="h1 italic !text-2xl">OWNER PORTAL</h2>
             <button onclick="closeAll()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center">
@@ -258,6 +258,7 @@
         let DATA = [];
         let loading = true;
         let generatedOTP = null;
+        let appliedCoupon = null;
 
         async function fetchProducts() {
             loading = true;
