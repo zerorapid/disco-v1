@@ -518,8 +518,11 @@
             if (appliedCoupon === 'LOUD50') discountPct = 50;
             
             const totalSavings = Math.floor(sub * (discountPct / 100));
-            let deliveryFee = sub >= 199 ? 0 : 30;
-            const total = (sub - totalSavings) + deliveryFee;
+            const platformFee = 12;
+            const deliveryFee = sub > 100 ? 0 : 75;
+            const taxableAmount = sub - totalSavings;
+            const gst = Math.floor(taxableAmount * 0.05); // 5% GST
+            const total = taxableAmount + platformFee + deliveryFee + gst;
 
             // RENDER PRODUCTS + RELEVANT COUPON CARD
             const isApplied = appliedCoupon === bestAvailable;
@@ -555,11 +558,31 @@
                 </div>
             `;
 
-            // Update Progress Bar
-            const progress = sub >= 2000 ? 100 : (sub / 2000) * 100;
+            // Update Progress Bar (Prioritize Delivery then Coupons)
+            let progress = 0;
+            let promoMsg = "";
+            let barColor = "#f97316";
+
+            if (sub < 100) {
+                progress = (sub / 100) * 100;
+                promoMsg = `ADD ₹${100-sub} FOR FREE DELIVERY! 🚚`;
+                barColor = "#ef4444"; // Urgent Red
+            } else if (sub < 1000) {
+                progress = (sub / 1000) * 100;
+                promoMsg = `FREE DELIVERY UNLOCKED! ADD ₹${1000-sub} FOR 40% OFF!`;
+                barColor = "#f97316"; // Orange
+            } else if (sub < 2000) {
+                progress = (sub / 2000) * 100;
+                promoMsg = `LOUD40 UNLOCKED! ADD ₹${2000-sub} FOR 50% OFF!`;
+                barColor = "#3b82f6"; // Blue
+            } else {
+                progress = 100;
+                promoMsg = "MAX SAVINGS UNLOCKED! 🚀💎";
+                barColor = "#22c55e"; // Green
+            }
+
             document.getElementById('promoBar').style.width = progress + "%";
-            document.getElementById('promoBar').style.background = sub >= 2000 ? '#22c55e' : (sub >= 1000 ? '#3b82f6' : '#f97316');
-            let promoMsg = sub >= 2000 ? "MAX DISCOUNT UNLOCKED! 🚀" : (sub >= 1000 ? `ADD ₹${2000-sub} FOR 50% OFF!` : `ADD ₹${1000-sub} FOR 40% OFF!`);
+            document.getElementById('promoBar').style.background = barColor;
             document.getElementById('promoText').innerText = promoMsg;
 
             // Update Savings Badge
@@ -572,10 +595,12 @@
             document.getElementById('bill').innerHTML = `
                 <div class="flex justify-between text-[10px] font-black uppercase text-gray-400"><span>Items Total</span><span>₹${sub}</span></div>
                 ${totalSavings > 0 ? `<div class="flex justify-between text-[10px] font-black uppercase text-green-500"><span>Coupon Applied (${appliedCoupon})</span><span>- ₹${totalSavings}</span></div>` : ''}
+                <div class="flex justify-between text-[10px] font-black uppercase text-gray-400"><span>GST (5%)</span><span>₹${gst}</span></div>
+                <div class="flex justify-between text-[10px] font-black uppercase text-gray-400"><span>Platform Fee</span><span>₹${platformFee}</span></div>
                 <div class="flex justify-between text-[10px] font-black uppercase text-gray-400"><span>Delivery Fee</span><span>${deliveryFee === 0 ? '<span class="text-green-500">FREE</span>' : '₹'+deliveryFee}</span></div>
                 <div class="pt-4 border-t border-black/5 flex justify-between items-center">
                     <span class="h1 italic !text-xl">Total</span>
-                    <span class="h1 italic !text-2xl ${totalSavings > 0 ? 'text-black' : 'opacity-40'}">₹${Math.max(0, total)}</span>
+                    <span class="h1 italic !text-2xl">₹${Math.max(0, total)}</span>
                 </div>
             `;
         }
