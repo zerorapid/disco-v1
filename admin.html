@@ -295,7 +295,9 @@
                                     </div>
                                 ` : ''}
                             </div>
-                            <div class="flex gap-2">
+                                <button onclick="openComparison('${p.name}')" class="w-12 h-12 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center transition-all hover:bg-blue-500 hover:text-white" title="Compare Online">
+                                    <span class="material-symbols-outlined text-sm">search_insights</span>
+                                </button>
                                 <button onclick="openModal('edit', ${p.id})" class="w-12 h-12 bg-white/5 hover:bg-white hover:text-black rounded-xl flex items-center justify-center transition-all">
                                     <span class="material-symbols-outlined text-sm">edit</span>
                                 </button>
@@ -626,6 +628,8 @@
             document.getElementById('m-weight').value = "";
             document.getElementById('m-img').value = "";
             document.getElementById('m-desc').value = "";
+            document.getElementById('m-zepto').value = "";
+            document.getElementById('m-blinkit').value = "";
         }
 
         function fillFields(p) {
@@ -644,6 +648,14 @@
         function copyTrackingLink(orderId) {
             const url = window.location.origin + '/track.html?id=' + orderId;
             navigator.clipboard.writeText(url).then(() => showToast("Tracking Link Copied! 🔗"));
+        }
+
+        function openComparison(name) {
+            const q = encodeURIComponent(name);
+            // OPEN GOOGLE SHOPPING (BEST FOR ZEPTO/BLINKIT PRICE CHECK)
+            window.open(`https://www.google.com/search?tbm=shop&q=${q}`, '_blank');
+            // OPEN BIGBASKET FOR WAREHOUSE BENCHMARKING
+            window.open(`https://www.bigbasket.com/ps/?q=${q}`, '_blank');
         }
 
         async function submitProduct() {
