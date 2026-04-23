@@ -57,10 +57,11 @@
         @media (max-width: 768px) { 
             #sideCart, #sideAccount, #pdp, #checkoutSheet { transform: translateY(100%); width: 100% !important; height: 94vh !important; top: auto !important; bottom: 0 !important; border-left: none; border-top: 1px solid var(--border); border-radius: 24px 24px 0 0; } 
             #sideCart.open, #sideAccount.open, #pdp.open, #checkoutSheet.open { transform: translateY(0); }
-            .product-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; padding: 12px !important; background: white !important; border: none !important; }
-            .product-grid > div { border: 1px solid #f0f0f0 !important; border-radius: 12px !important; padding: 12px !important; }
-            h1, .h1 { font-size: 28px; }
-            h2, .h2 { font-size: 22px; }
+            .product-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; padding: 8px !important; }
+            .product-card { padding: 12px !important; }
+            .product-card img { height: 120px !important; width: auto !important; margin: 0 auto; }
+            h1, .h1 { font-size: 24px; }
+            h2, .h2 { font-size: 20px; }
         }
 
         .product-grid { display: grid; gap: 24px; grid-template-columns: repeat(5, 1fr); }
@@ -470,26 +471,31 @@
 
             document.getElementById('list').innerHTML = sorted.map(p => {
                 const n = cart[p.id] || 0;
-                return `<div class="bg-white border border-gray-100 p-4 lg:p-8 flex flex-col group cursor-pointer transition-colors hover:bg-gray-50 rounded-2xl" onclick="openPDP(${p.id})">
+                return `<div class="product-card bg-white border border-gray-100 p-4 lg:p-8 flex flex-col group cursor-pointer transition-colors hover:bg-gray-50 rounded-2xl" onclick="openPDP(${p.id})">
                     <div class="relative aspect-square bg-white mb-4 flex items-center justify-center p-2">
                         <img src="${p.image_url}" class="w-full h-full object-contain transition-transform group-hover:scale-105"/>
                         ${p.price > p.discount_price ? `<span class="absolute top-0 right-0 bg-black text-white text-[8px] font-black px-2 py-1 uppercase rounded-sm">-${Math.round((1 - p.discount_price/p.price)*100)}%</span>` : ''}
                     </div>
                     <div class="flex flex-col flex-1">
-                        <h3 class="font-bold text-sm lg:text-base mb-1 line-clamp-2 min-h-[2.5rem] italic leading-tight">${p.name}</h3>
-                        <p class="text-[9px] font-bold text-gray-400 uppercase mb-4 tracking-widest">${p.weight}g • ${p.category}</p>
-                        <div class="flex justify-between items-end mt-auto gap-2">
-                            <div>
-                                <p class="text-base lg:text-lg font-black italic">₹${p.discount_price}</p>
-                                ${p.price > p.discount_price ? `<p class="text-[9px] text-gray-300 line-through">₹${p.price}</p>` : ''}
-                            </div>
-                            ${n === 0 ? 
-                                `<button onclick="event.stopPropagation(); upd(${p.id},1)" class="bg-black text-white px-6 py-2.5 rounded-xl font-black uppercase text-[10px] tracking-widest active:scale-90 transition-all">Add</button>` :
-                                `<div class="stepper !h-10 !w-24 !rounded-xl" onclick="event.stopPropagation()">
+                        <h3 class="font-bold text-xs lg:text-base mb-1 line-clamp-2 min-h-[2.5rem] italic leading-tight">${p.name}</h3>
+                        <p class="text-[8px] font-black uppercase text-gray-400 mb-4 tracking-widest">${p.weight}g</p>
+                        
+                        <div class="mt-auto">
+                            <div class="flex justify-between items-center mb-3">
+                                <div>
+                                    <p class="text-sm lg:text-lg font-black italic">₹${p.discount_price}</p>
+                                    ${p.price > p.discount_price ? `<p class="text-[9px] text-gray-300 line-through">₹${p.price}</p>` : ''}
+                                </div>
+                                ${n > 0 ? `
+                                <div class="stepper !h-8 !w-20 !rounded-lg" onclick="event.stopPropagation()">
                                     <div class="step-btn" onclick="upd(${p.id},-1)">-</div>
-                                    <div class="text-[11px] font-black">${n}</div>
+                                    <div class="text-[10px] font-black">${n}</div>
                                     <div class="step-btn" onclick="upd(${p.id},1)">+</div>
-                                </div>`
+                                </div>` : ''}
+                            </div>
+                            
+                            ${n === 0 ? 
+                                `<button onclick="event.stopPropagation(); upd(${p.id},1)" class="w-full bg-black text-white py-3 rounded-xl font-black uppercase text-[10px] tracking-widest active:scale-90 transition-all">Add</button>` : ''
                             }
                         </div>
                     </div>
