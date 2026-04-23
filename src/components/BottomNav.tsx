@@ -1,29 +1,84 @@
 'use client';
 
+import { useCart } from '@/context/CartContext';
+import { useAccount } from '@/context/AccountContext';
+import { useUI } from '@/context/UIContext';
+import { useRouter, usePathname } from 'next/navigation';
+import { Home, Search, ShoppingBag, User, Zap, MessageCircleQuestion } from 'lucide-react';
+
 export default function BottomNav() {
+  const { totalItems, setIsCartOpen } = useCart();
+  const { setIsAccountOpen } = useAccount();
+  const { setIsSearchOpen } = useUI();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const handleHomeClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (pathname !== '/') {
+      router.push('/');
+    }
+    setIsSearchOpen(false);
+  };
+
+  const navItemClass = "flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all active-scale";
+
   return (
-    <nav className="fixed bottom-0 left-0 w-full h-[84px] bg-white border-t border-border z-50 md:hidden flex items-center justify-between px-10 pb-safe">
-      <div className="flex flex-col items-center gap-1 relative">
-        <span className="material-symbols-outlined text-[28px]">home</span>
-        <span className="text-[10px] font-black uppercase tracking-widest">Home</span>
-        <div className="absolute -bottom-2 w-1.5 h-1.5 bg-black rounded-full"></div>
-      </div>
+    <nav className="fixed bottom-0 left-0 w-full h-[84px] bg-white border-t border-border z-50 md:hidden flex items-center justify-between px-6 pb-safe shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
       
-      <div className="flex flex-col items-center gap-1 opacity-30">
-        <span className="material-symbols-outlined text-[28px]">search</span>
-        <span className="text-[10px] font-black uppercase tracking-widest">Search</span>
-      </div>
-      
-      <div className="flex flex-col items-center gap-1 relative">
-        <span className="material-symbols-outlined text-[28px]">shopping_bag</span>
-        <span className="text-[10px] font-black uppercase tracking-widest">Cart</span>
-        <span className="absolute -top-1 -right-3 bg-black text-white text-[9px] w-5 h-5 flex items-center justify-center font-black border-2 border-white">0</span>
-      </div>
-      
-      <div className="flex flex-col items-center gap-1 opacity-30">
-        <span className="material-symbols-outlined text-[28px]">person</span>
-        <span className="text-[10px] font-black uppercase tracking-widest">Account</span>
-      </div>
+      {/* HOME */}
+      <button 
+        onClick={handleHomeClick}
+        className={`${navItemClass} ${pathname === '/' ? 'text-black' : 'text-black/30'}`}
+      >
+        <Home size={24} strokeWidth={pathname === '/' ? 3 : 2} />
+        <span className="text-[10px] font-black uppercase tracking-widest">Store</span>
+      </button>
+
+      {/* 1 RUPEE DEALS - Replacing Search */}
+      <button 
+        onClick={() => router.push('/deals')}
+        className={`${navItemClass} ${pathname === '/deals' ? 'text-black' : 'text-black/30'}`}
+      >
+        <div className={`relative ${pathname === '/deals' ? 'text-green-600' : ''}`}>
+          <Zap size={24} fill={pathname === '/deals' ? "currentColor" : "none"} strokeWidth={3} />
+          <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-ping" />
+        </div>
+        <span className="text-[10px] font-black uppercase tracking-widest">₹1 Deals</span>
+      </button>
+
+      {/* CART - CENTER CTA */}
+      <button 
+        onClick={() => setIsCartOpen(true)}
+        className="relative -top-6 flex flex-col items-center justify-center gap-1 active-scale group"
+      >
+        <div className="w-16 h-16 bg-black text-white flex items-center justify-center shadow-2xl shadow-black/40 group-active:scale-90 transition-transform">
+          <ShoppingBag size={28} strokeWidth={2.5} />
+          {totalItems > 0 && (
+            <div className="absolute -top-1 -right-1 bg-green-500 text-black text-[11px] font-black w-6 h-6 flex items-center justify-center ring-4 ring-white">
+              {totalItems}
+            </div>
+          )}
+        </div>
+      </button>
+
+      {/* HELP / SUPPORT - Removing Account as requested (duplicate) */}
+      <button 
+        className={`${navItemClass} text-black/30`}
+      >
+        <MessageCircleQuestion size={24} strokeWidth={2} />
+        <span className="text-[10px] font-black uppercase tracking-widest">Support</span>
+      </button>
+
+      {/* MORE / CATEGORIES */}
+      <button 
+        onClick={() => router.push('/')}
+        className={`${navItemClass} text-black/30`}
+      >
+        <div className="w-6 h-6 border-2 border-current flex items-center justify-center text-[10px] font-black">AI</div>
+        <span className="text-[10px] font-black uppercase tracking-widest">Smart</span>
+      </button>
+
     </nav>
   );
 }

@@ -3,145 +3,90 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
+import InventoryManager from '@/components/admin/InventoryManager';
+import OrderPulse from '@/components/admin/OrderPulse';
+import CustomerList from '@/components/admin/CustomerList';
+import AnalyticsView from '@/components/admin/AnalyticsView';
 
 export default function AdminPage() {
   const [products, setProducts] = useState<any[]>([]);
+  const [stats, setStats] = useState({ revenue: 0, orders: 0 });
   const [loading, setLoading] = useState(true);
-  const [newProduct, setNewProduct] = useState({ name: '', price: 0, discount_price: 0, category: 'Groceries', weight: '500', stock: 10, image_url: '' });
+  const [activeTab, setActiveTab] = useState<'orders' | 'inventory' | 'customers' | 'analytics'>('orders');
 
   useEffect(() => {
-    fetchProducts();
+    fetchData();
   }, []);
 
-  async function fetchProducts() {
-    const { data, error } = await supabase.from('products').select('*').order('id', { ascending: false });
-    if (!error && data) setProducts(data);
+  async function fetchData() {
+    const [prodRes, orderRes] = await Promise.all([
+      supabase.from('products').select('*').order('name'),
+      supabase.from('orders').select('total_amount').gte('created_at', new Date(new Date().setHours(0,0,0,0)).toISOString())
+    ]);
+
+    if (prodRes.data) setProducts(prodRes.data);
+    
+    if (orderRes.data) {
+      const revenue = orderRes.data.reduce((acc, curr) => acc + curr.total_amount, 0);
+      setStats({ revenue, orders: orderRes.data.length });
+    }
+    
     setLoading(false);
   }
 
-  async function updateStock(id: number, delta: number) {
-    const p = products.find(x => x.id === id);
-    if (!p) return;
-    const newStock = Math.max(0, p.stock + delta);
-    
-    const { error } = await supabase.from('products').update({ stock: newStock }).eq('id', id);
-    if (!error) {
-      setProducts(products.map(x => x.id === id ? { ...x, stock: newStock } : x));
-    }
-  }
-
-  async function handleAddProduct(e: React.FormEvent) {
-    e.preventDefault();
-    const { data, error } = await supabase.from('products').insert([newProduct]).select();
-    if (!error && data) {
-      setProducts([data[0], ...products]);
-      setNewProduct({ name: '', price: 0, discount_price: 0, category: 'Groceries', weight: '500', stock: 10, image_url: '' });
-    }
-  }
-
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-uber-gray/30">
       <Header />
       
       <div className="pt-24 pb-32 max-width">
-        <div className="flex justify-between items-end mb-12">
-          <div>
-            <h1 className="!text-4xl mb-2">OWNER PORTAL</h1>
-            <p className="text-muted font-bold uppercase tracking-widest text-[12px]">Warehouse Inventory Management</p>
+        {/* KPI SECTION */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white p-6 border-thin shadow-sm">
+            <p className="text-caption text-black/40 mb-1">Today's Revenue</p>
+            <h2 className="text-heading-2">₹{stats.revenue}</h2>
+          </div>
+          <div className="bg-white p-6 border-thin shadow-sm">
+            <p className="text-caption text-black/40 mb-1">Today's Orders</p>
+            <h2 className="text-heading-2">{stats.orders}</h2>
+          </div>
+          <div className="bg-white p-6 border-thin shadow-sm">
+            <p className="text-caption text-black/40 mb-1">Low Stock Items</p>
+            <h2 className="text-heading-2 text-red-600">{products.filter(p => p.stock < 5).length}</h2>
+          </div>
+          <div className="bg-white p-6 border-thin shadow-sm">
+            <p className="text-caption text-black/40 mb-1">Live Products</p>
+            <h2 className="text-heading-2">{products.length}</h2>
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-12">
-          {/* ADD PRODUCT FORM */}
-          <div className="lg:col-span-1">
-            <div className="border border-black p-8">
-              <h2 className="!text-xl mb-8 uppercase font-black">Add New Product</h2>
-              <form onSubmit={handleAddProduct} className="space-y-6">
-                <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest mb-2 text-muted">Product Name</label>
-                  <input 
-                    required
-                    className="w-full h-12 border border-border px-4 font-bold focus:border-black outline-none transition-colors"
-                    value={newProduct.name}
-                    onChange={e => setNewProduct({...newProduct, name: e.target.value})}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest mb-2 text-muted">MRP (₹)</label>
-                    <input 
-                      type="number"
-                      required
-                      className="w-full h-12 border border-border px-4 font-bold focus:border-black outline-none transition-colors"
-                      value={newProduct.price}
-                      onChange={e => setNewProduct({...newProduct, price: Number(e.target.value)})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest mb-2 text-muted">Deal (₹)</label>
-                    <input 
-                      type="number"
-                      required
-                      className="w-full h-12 border border-border px-4 font-bold focus:border-black outline-none transition-colors"
-                      value={newProduct.discount_price}
-                      onChange={e => setNewProduct({...newProduct, discount_price: Number(e.target.value)})}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest mb-2 text-muted">Image URL</label>
-                  <input 
-                    required
-                    placeholder="https://unsplash..."
-                    className="w-full h-12 border border-border px-4 font-bold focus:border-black outline-none transition-colors"
-                    value={newProduct.image_url}
-                    onChange={e => setNewProduct({...newProduct, image_url: e.target.value})}
-                  />
-                </div>
-                <button type="submit" className="w-full bg-black text-white h-14 font-black uppercase tracking-widest">
-                  Inject into Warehouse
-                </button>
-              </form>
-            </div>
-          </div>
+        {/* NAVIGATION */}
+        <div className="flex bg-white border-thin p-1 mb-8 overflow-x-auto no-scrollbar">
+          {[
+            { id: 'orders', label: `Pulse (${stats.orders})` },
+            { id: 'inventory', label: `Stock (${products.length})` },
+            { id: 'customers', label: 'Users' },
+            { id: 'analytics', label: 'Financials' }
+          ].map((tab) => (
+            <button 
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex-1 min-w-[100px] py-4 text-caption transition-all ${activeTab === tab.id ? 'bg-black text-white' : 'hover:bg-uber-gray text-black/40'}`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-          {/* INVENTORY LIST */}
-          <div className="lg:col-span-2">
-            <div className="border border-border">
-              <div className="bg-uber-gray p-4 border-b border-border grid grid-cols-6 text-[10px] font-black uppercase tracking-widest">
-                <div className="col-span-3">Product</div>
-                <div className="text-center">Stock</div>
-                <div className="text-right col-span-2">Action</div>
-              </div>
-              
-              {loading ? (
-                <div className="p-20 text-center opacity-30 font-black uppercase tracking-widest">Scanning...</div>
-              ) : products.map(p => (
-                <div key={p.id} className="p-6 border-b border-border grid grid-cols-6 items-center hover:bg-gray-50 transition-colors">
-                  <div className="col-span-3 flex items-center gap-4">
-                    <div className="w-12 h-12 bg-uber-gray flex items-center justify-center p-2">
-                      <img src={p.image_url} className="max-w-full max-h-full object-contain" alt=""/>
-                    </div>
-                    <div>
-                      <div className="font-bold text-[14px] leading-tight">{p.name}</div>
-                      <div className="text-[10px] text-muted uppercase font-black tracking-widest">{p.category} • {p.weight}g</div>
-                    </div>
-                  </div>
-                  
-                  <div className="text-center">
-                    <span className={`px-3 py-1 font-black text-[14px] ${p.stock < 5 ? 'bg-red-500 text-white' : 'bg-black text-white'}`}>
-                      {p.stock}
-                    </span>
-                  </div>
-                  
-                  <div className="col-span-2 flex justify-end gap-2">
-                    <button onClick={() => updateStock(p.id, -1)} className="w-10 h-10 border border-border flex items-center justify-center hover:bg-black hover:text-white transition-all">-</button>
-                    <button onClick={() => updateStock(p.id, 1)} className="w-10 h-10 border border-border flex items-center justify-center hover:bg-black hover:text-white transition-all">+</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+        {/* CONTENT */}
+        <div className="min-h-[400px] animate-in fade-in duration-500">
+          {loading ? (
+            <div className="h-64 flex items-center justify-center text-caption animate-pulse">Synchronizing Data...</div>
+          ) : (
+            activeTab === 'orders' ? <OrderPulse /> : 
+            activeTab === 'inventory' ? <InventoryManager products={products} onUpdate={fetchData} /> :
+            activeTab === 'customers' ? <CustomerList /> :
+            <AnalyticsView />
+          )}
         </div>
       </div>
     </main>
