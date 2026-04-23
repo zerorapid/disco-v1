@@ -426,8 +426,8 @@
                 return;
             }
 
-            const final = list.filter(p => cat === "All" || p.cat === cat);
-            const sorted = [...final].sort((a,b) => (b.profit_score || 0) - (a.profit_score || 0));
+            const final = list.filter(p => cat === "All" || p.category === cat);
+            const sorted = [...final].sort((a,b) => (b.stock || 0) - (a.stock || 0));
             
             if (sorted.length === 0 && DATA.length > 0) {
                 document.getElementById('list').innerHTML = `<div class="col-span-full py-20 text-center opacity-30 h3 uppercase italic">No Products in ${cat}</div>`;
@@ -472,7 +472,8 @@
             
             const filtered = DATA.filter(p => 
                 p.name.toLowerCase().includes(q) || 
-                p.tags.some(t => t.toLowerCase().includes(q))
+                p.description.toLowerCase().includes(q) ||
+                p.category.toLowerCase().includes(q)
             );
             
             if (filtered.length === 0) {
@@ -490,7 +491,7 @@
         }
 
         function renderCategories() {
-            const cats = ["All", ...new Set(DATA.map(p => p.cat))];
+            const cats = ["All", ...new Set(DATA.map(p => p.category))];
             document.getElementById('categoryTabs').innerHTML = cats.map(c => `
                 <div onclick="setCat('${c}')" class="flex flex-col items-center gap-3 min-w-[80px] cursor-pointer">
                     <div class="w-16 h-16 ${cat === c ? 'bg-black text-white' : 'bg-white'} rounded-3xl flex items-center justify-center border border-gray-100">
@@ -569,7 +570,7 @@
             
             const sub = ids.reduce((s, i) => {
                 const p = DATA.find(x => x.id == i); // Loose equality for string vs number
-                return s + (p ? p.d * cart[i] : 0);
+                return s + (p ? p.discount_price * cart[i] : 0);
             }, 0);
             
             if (sub < 100) {
@@ -676,7 +677,7 @@
             const ids = Object.keys(cart).filter(i=>cart[i]>0);
             const sub = ids.reduce((s,i)=>{
                 const p = DATA.find(x=>x.id==i);
-                return s + (p ? p.d * cart[i] : 0);
+                return s + (p ? p.discount_price * cart[i] : 0);
             }, 0);
             if (code === 'FLAT30' && sub >= 100) { 
                 appliedCoupon = 'FLAT30'; 
@@ -743,7 +744,7 @@
             const ids = Object.keys(cart).filter(i=>cart[i]>0);
             const sub = ids.reduce((s,i)=>{
                 const p = DATA.find(x=>x.id==i);
-                return s + (p ? p.d * cart[i] : 0);
+                return s + (p ? p.discount_price * cart[i] : 0);
             }, 0);
             
             const discountPct = appliedCoupon === 'FLAT30' ? 30 : 0;
@@ -754,7 +755,7 @@
             const gst = Math.floor(taxableAmount * 0.05);
             const total = taxableAmount + platformFee + deliveryFee + gst;
 
-            const orderItems = ids.map(i => { const p = DATA.find(x=>x.id==i); return { id: i, name: p.name, qty: cart[i], price: p.d }; });
+            const orderItems = ids.map(i => { const p = DATA.find(x=>x.id==i); return { id: i, name: p.name, qty: cart[i], price: p.discount_price }; });
             const selAddr = addresses[selAddrIdx];
             const orderData = { 
                 customer_name: user.name, 
