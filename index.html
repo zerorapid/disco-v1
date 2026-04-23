@@ -279,7 +279,12 @@
         let user = JSON.parse(localStorage.getItem('user') || 'null');
         let addresses = JSON.parse(localStorage.getItem('addrs') || '[]');
         let history = JSON.parse(localStorage.getItem('hist') || '[]');
-        let selAddrIdx = -1; let cat = "All"; let selSlot = null;
+        let selAddrIdx = -1; let cat = "All"; let selSlot = null; let searchTimeout = null;
+
+        async function logSearch(q, found) {
+            if (!q || q.length < 3) return;
+            await _supabase.from('search_logs').insert([{ query: q, found: found }]);
+        }
 
         async function fetchProducts() {
             console.log("LOUD: Fetching Inventory...");
@@ -456,6 +461,12 @@
             } else {
                 render(filtered);
             }
+
+            // INTELLIGENT LOGGING (Debounced to save API calls)
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                logSearch(q, filtered.length > 0);
+            }, 1500);
         }
 
         function renderCategories() {
