@@ -152,6 +152,17 @@
                         <option value="Household">Household</option>
                     </select>
                 </div>
+                <div class="pt-6 border-t border-white/5 col-span-2">
+                    <p class="text-[9px] font-black uppercase text-orange-500 mb-4 tracking-widest">Arbitrage Sniper 🎯</p>
+                </div>
+                <div>
+                    <label class="text-[9px] font-black uppercase text-white/30 mb-2 block">Zepto Price (₹)</label>
+                    <input type="number" id="m-zepto" class="input-field" placeholder="Price on Zepto">
+                </div>
+                <div>
+                    <label class="text-[9px] font-black uppercase text-white/30 mb-2 block">Blinkit Price (₹)</label>
+                    <input type="number" id="m-blinkit" class="input-field" placeholder="Price on Blinkit">
+                </div>
                 <div class="col-span-2">
                     <label class="text-[9px] font-black uppercase text-white/30 mb-2 block">Image URL</label>
                     <input type="url" id="m-img" class="input-field" placeholder="https://cdn..." required>
@@ -184,10 +195,32 @@
             const { data: s, error: se } = await _supabase.from('search_logs').select('*').order('created_at', { ascending: false });
             
             if (pe || oe || se) showToast("Cloud Sync Error 🔴");
+            
+            // AUDIBLE PULSE: Check for new orders
+            if (ORDERS.length > 0 && o && o.length > ORDERS.length) {
+                playOrderSound();
+                showToast("NEW ORDER RECEIVED! 💰");
+            }
+
             DATA = p || [];
             ORDERS = o || [];
             SEARCH_LOGS = s || [];
             render();
+        }
+
+        function playOrderSound() {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High A
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.1);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.5);
         }
 
         function showToast(msg) {
@@ -248,9 +281,12 @@
                                 </div>
                             </div>
                             <div class="flex gap-2">
-                                <button onclick="openModal('edit', ${p.id})" class="w-12 h-12 bg-white/5 hover:bg-white hover:text-black rounded-xl flex items-center justify-center transition-all">
-                                    <span class="material-symbols-outlined text-sm">edit</span>
-                                </button>
+                                    <button onclick="copyTrackingLink(${p.id})" class="w-12 h-12 bg-orange-500/10 text-orange-500 rounded-xl flex items-center justify-center transition-all hover:bg-orange-500 hover:text-black" title="Price Sniper">
+                                        <span class="material-symbols-outlined text-sm">target</span>
+                                    </button>
+                                    <button onclick="openModal('edit', ${p.id})" class="w-12 h-12 bg-white/5 hover:bg-white hover:text-black rounded-xl flex items-center justify-center transition-all">
+                                        <span class="material-symbols-outlined text-sm">edit</span>
+                                    </button>
                                 <button onclick="deleteProduct(${p.id})" class="w-12 h-12 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl flex items-center justify-center transition-all">
                                     <span class="material-symbols-outlined text-sm">delete</span>
                                 </button>
@@ -501,9 +537,14 @@
                                         <div class="flex-1">
                                             <p class="h1 italic !text-xl mb-1">${o.customer_name}</p>
                                             <p class="text-sm font-bold text-white/60 mb-4">${o.customer_phone}</p>
-                                            <button onclick="window.open('https://wa.me/${o.customer_phone}', '_blank')" class="flex items-center gap-2 bg-green-500 text-black px-6 py-3 rounded-xl text-[10px] font-black uppercase">
-                                                <span class="material-symbols-outlined text-sm">chat</span> Contact Customer
-                                            </button>
+                                            <div class="flex gap-2">
+                                                <button onclick="window.open('https://wa.me/${o.customer_phone}', '_blank')" class="flex-1 flex items-center justify-center gap-2 bg-green-500 text-black px-6 py-3 rounded-xl text-[10px] font-black uppercase">
+                                                    <span class="material-symbols-outlined text-sm">chat</span> WhatsApp
+                                                </button>
+                                                <button onclick="copyTrackingLink(${o.id})" class="flex-1 flex items-center justify-center gap-2 bg-white/5 text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase hover:bg-white hover:text-black">
+                                                    <span class="material-symbols-outlined text-sm">link</span> Tracking Link
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -583,6 +624,13 @@
             document.getElementById('m-category').value = p.category;
             document.getElementById('m-img').value = p.image_url;
             document.getElementById('m-desc').value = p.description;
+            document.getElementById('m-zepto').value = p.zepto_price || "";
+            document.getElementById('m-blinkit').value = p.blinkit_price || "";
+        }
+
+        function copyTrackingLink(orderId) {
+            const url = window.location.origin + '/track.html?id=' + orderId;
+            navigator.clipboard.writeText(url).then(() => showToast("Tracking Link Copied! 🔗"));
         }
 
         async function submitProduct() {
@@ -605,7 +653,9 @@
                 weight: parseInt(document.getElementById('m-weight').value),
                 category: document.getElementById('m-category').value,
                 image_url: document.getElementById('m-img').value,
-                description: document.getElementById('m-desc').value
+                description: document.getElementById('m-desc').value,
+                zepto_price: parseInt(document.getElementById('m-zepto').value) || null,
+                blinkit_price: parseInt(document.getElementById('m-blinkit').value) || null
             };
 
             if (editingId) {
