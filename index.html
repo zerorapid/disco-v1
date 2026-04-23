@@ -440,10 +440,11 @@
                 return `<div class="bg-white border border-gray-100 p-6 lg:p-8 flex flex-col group cursor-pointer transition-colors hover:bg-gray-50" onclick="openPDP(${p.id})">
                     <div class="relative aspect-square bg-white mb-6 flex items-center justify-center p-4">
                         <img src="${p.img[0]}" class="w-full h-full object-contain transition-transform group-hover:scale-105"/>
+                        ${p.mrp > p.d ? `<span class="absolute top-0 right-0 bg-black text-white text-[8px] font-bold px-2 py-1 uppercase">-${Math.round((1 - p.d/p.mrp)*100)}%</span>` : ''}
                     </div>
                     <div class="flex flex-col flex-1">
-                        <h3 class="h3 !text-base mb-1 line-clamp-2 min-h-[3rem]">${p.name}</h3>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 tracking-wider">${p.cat}</p>
+                        <h3 class="h3 !text-base mb-1 line-clamp-2 min-h-[2.5rem]">${p.name}</h3>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 tracking-wider">${p.weight}g • ${p.cat}</p>
                         <div class="flex justify-between items-end mt-auto">
                             <div>
                                 <p class="h3 !text-lg !font-bold">₹${p.d}</p>
@@ -567,7 +568,7 @@
                     ${ids.map(i => { 
                         const p = DATA.find(x=>x.id==i); 
                         if(!p) return ''; // SKIP GHOST ITEMS
-                        return `<div class="flex justify-between items-center"><div><h4 class="h3 !text-lg uppercase line-clamp-1">${p.name}</h4><p class="meta-text">₹${p.d}</p></div><div class="stepper"><div class="step-btn" onclick="upd(${i},-1)">-</div><div class="font-black">${cart[i]}</div><div class="step-btn" onclick="upd(${i},1)">+</div></div></div>` 
+                        return `<div class="flex justify-between items-center"><div><h4 class="h3 !text-sm uppercase line-clamp-1">${p.name}</h4><p class="meta-text">${p.weight}g • ₹${p.d}</p></div><div class="stepper"><div class="step-btn" onclick="upd(${i},-1)">-</div><div class="font-black">${cart[i]}</div><div class="step-btn" onclick="upd(${i},1)">+</div></div></div>` 
                     }).join('')}
                     
                     <div class="pt-10 border-t border-gray-50 space-y-6">
