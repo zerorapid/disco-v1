@@ -46,9 +46,9 @@ export default function OrderPulse() {
             order.status === 'Shipped' ? 'bg-blue-500' : 'bg-green-500'
           }`} />
 
-          <div className="flex-1 flex items-center px-6 gap-8 overflow-hidden">
+          <div className="flex-1 flex items-center px-6 gap-8">
             {/* ID & PRICE */}
-            <div className="w-28 shrink-0">
+            <div className="w-28 shrink-0 flex flex-col justify-center h-full">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-[10px] font-black uppercase tracking-widest text-black/30">#{order.id.toString().slice(-4)}</span>
                 <span className={`px-1.5 py-0.5 text-[8px] font-black uppercase tracking-widest ${
@@ -59,30 +59,30 @@ export default function OrderPulse() {
                 </span>
               </div>
               <h3 className="text-2xl font-black tracking-tighter leading-none">₹{order.total_amount}</h3>
-              <p className="text-[10px] font-bold text-black/40 uppercase tracking-widest mt-1.5 flex items-center gap-1">
+              <p className="text-[10px] font-bold text-black/40 uppercase tracking-widest mt-2 flex items-center gap-1">
                 <Clock size={10} />
                 {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>
             </div>
 
             {/* PAYLOAD */}
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-black text-black/30 uppercase tracking-[0.2em] mb-1">Items Payload</p>
-              <p className="text-[14px] font-bold leading-tight line-clamp-2">
-                {order.items?.map((it: any) => `${it.quantity}x ${it.name}`).join(', ')}
+            <div className="flex-1 min-w-0 flex flex-col justify-center h-full">
+              <p className="text-[9px] font-black text-black/20 uppercase tracking-[0.2em] mb-1">Items Payload</p>
+              <p className="text-[13px] font-bold leading-tight line-clamp-2">
+                {order.items?.map((it: any) => `${it.quantity || 1}x ${it.name}`).join(', ')}
               </p>
             </div>
 
             {/* DESTINATION */}
-            <div className="flex-1 min-w-0 hidden xl:block border-l border-black/5 pl-8">
-              <p className="text-[10px] font-black text-black/30 uppercase tracking-[0.2em] mb-1">Destination</p>
-              <p className="text-[12px] font-bold leading-tight uppercase text-black/60 line-clamp-2">
+            <div className="flex-1 min-w-0 hidden xl:flex flex-col justify-center h-full border-l border-black/5 pl-8">
+              <p className="text-[9px] font-black text-black/20 uppercase tracking-[0.2em] mb-1">Destination</p>
+              <p className="text-[11px] font-bold leading-tight uppercase text-black/60 line-clamp-2">
                 {order.address?.flat}, {order.address?.area}
               </p>
             </div>
 
             {/* LOGISTICS */}
-            <div className="shrink-0 flex items-center gap-6 border-l border-black/5 pl-8">
+            <div className="shrink-0 flex flex-col justify-center h-full border-l border-black/5 pl-8">
               <div className="flex flex-col items-center">
                 {order.transport_type === 'TRUCK' ? <Truck size={18} className="text-black/40" /> : <Zap size={18} className="text-black/40" />}
                 <span className="text-[9px] font-black uppercase text-black/30 mt-1">{order.total_weight_kg || '0.5'}KG</span>
@@ -90,7 +90,7 @@ export default function OrderPulse() {
             </div>
 
             {/* ACTIONS */}
-            <div className="shrink-0 flex items-center gap-4 border-l border-black/5 pl-8">
+            <div className="shrink-0 flex items-center gap-4 border-l border-black/5 pl-8 h-full">
               <div className="flex gap-1">
                 <a href={`tel:${order.customer_phone}`} className="w-10 h-10 bg-uber-gray flex items-center justify-center text-black hover:bg-black hover:text-white transition-all">
                   <Phone size={16} />
