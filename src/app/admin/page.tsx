@@ -108,10 +108,10 @@ export default function AdminPage() {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-black text-white flex items-center justify-center font-black text-xl">D</div>
             <div>
-              <h1 className="text-[14px] font-black uppercase tracking-tighter leading-tight">DISCO</h1>
+              <h1 className="text-[17px] font-black uppercase tracking-tighter leading-tight">DISCO</h1>
               <div className="flex items-center gap-1.5">
-                <Radio size={8} className="text-green-500 animate-pulse" fill="currentColor" />
-                <span className="text-[9px] font-bold text-black/40 uppercase tracking-widest">System Online</span>
+                <Radio size={10} className="text-green-500 animate-pulse" fill="currentColor" />
+                <span className="text-[11px] font-bold text-black/40 uppercase tracking-widest">System Online</span>
               </div>
             </div>
           </div>
@@ -135,7 +135,7 @@ export default function AdminPage() {
               }`}
             >
               <tab.icon size={20} className={activeTab === tab.id ? 'text-green-400' : 'text-black/20 group-hover:text-black'} />
-              <span className={`text-[12px] font-black uppercase tracking-widest flex-1`}>
+              <span className={`text-[14px] font-black uppercase tracking-widest flex-1`}>
                 {tab.label}
               </span>
               {activeTab === tab.id && (
@@ -149,16 +149,16 @@ export default function AdminPage() {
           <a 
             href="/" 
             target="_blank"
-            className="flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-black/60 hover:text-black hover:bg-black/5 transition-all"
+            className="flex items-center gap-3 px-4 py-3 text-[12px] font-black uppercase tracking-widest text-black/60 hover:text-black hover:bg-black/5 transition-all"
           >
-            <ExternalLink size={14} />
+            <ExternalLink size={16} />
             View Storefront
           </a>
           <button 
             onClick={() => { sessionStorage.clear(); window.location.reload(); }}
-            className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-600 hover:bg-red-50 transition-all"
+            className="w-full flex items-center gap-3 px-4 py-3 text-[12px] font-black uppercase tracking-widest text-red-600 hover:bg-red-50 transition-all"
           >
-            <LogOut size={14} />
+            <LogOut size={16} />
             Terminate Session
           </button>
         </div>
@@ -191,18 +191,18 @@ export default function AdminPage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-8 max-w-6xl">
             <div className="grid grid-cols-3 gap-4 md:gap-16 flex-1">
               <div className="flex flex-col">
-                <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-black/40 mb-1 truncate">Revenue</span>
+                <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.2em] text-black/40 mb-1.5 truncate">Revenue</span>
                 <div className="flex items-baseline gap-1 md:gap-2">
-                  <span className="text-xl md:text-3xl font-black tracking-tighter">₹{stats.revenue.toLocaleString()}</span>
+                  <span className="text-2xl md:text-4xl font-black tracking-tighter text-green-700">₹{stats.revenue.toLocaleString()}</span>
                 </div>
               </div>
               <div className="flex flex-col border-l border-black/5 pl-4 md:pl-0 md:border-none">
-                <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-black/40 mb-1 truncate">Orders</span>
-                <span className="text-xl md:text-3xl font-black tracking-tighter">{stats.orders}</span>
+                <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.2em] text-black/40 mb-1.5 truncate">Orders</span>
+                <span className="text-2xl md:text-4xl font-black tracking-tighter">{stats.orders}</span>
               </div>
               <div className="flex flex-col border-l border-black/5 pl-4 md:pl-0 md:border-none">
-                <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-black/40 mb-1 truncate">Alerts</span>
-                <span className={`text-xl md:text-3xl font-black tracking-tighter ${products.filter(p => p.stock < 5).length > 0 ? 'text-red-600' : ''}`}>
+                <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.2em] text-black/40 mb-1.5 truncate">Alerts</span>
+                <span className={`text-2xl md:text-4xl font-black tracking-tighter ${products.filter(p => p.stock < 5).length > 0 ? 'text-red-600' : ''}`}>
                   {products.filter(p => p.stock < 5).length}
                 </span>
               </div>
@@ -214,7 +214,7 @@ export default function AdminPage() {
                 <input 
                   type="text"
                   placeholder="ERP Search"
-                  className="w-full h-10 md:h-12 bg-uber-gray border border-transparent px-10 text-[10px] md:text-xs font-bold uppercase tracking-widest placeholder:text-black/20 focus:bg-white focus:border-black transition-all outline-none"
+                  className="w-full h-10 md:h-12 bg-uber-gray border border-transparent px-10 text-[12px] md:text-[14px] font-bold uppercase tracking-widest placeholder:text-black/20 focus:bg-white focus:border-black transition-all outline-none"
                 />
               </div>
               <button className="h-10 w-10 md:h-12 md:w-12 bg-black text-white flex items-center justify-center hover:bg-green-600 transition-all active-scale">
@@ -227,12 +227,12 @@ export default function AdminPage() {
         <div className="pt-12 pb-32 px-6 md:px-16 max-w-6xl">
           <div className="mb-12 flex items-end justify-between">
             <div>
-              <h2 className="text-[40px] font-black uppercase tracking-tighter text-black leading-none">{activeTab}</h2>
-              <p className="text-[11px] font-bold text-black/40 uppercase tracking-[0.3em] mt-3">Sector: Intelligence-Grid-{activeTab.substring(0,3).toUpperCase()}</p>
+              <h2 className="text-[48px] font-black uppercase tracking-tighter text-black leading-none">{activeTab}</h2>
+              <p className="text-[13px] font-bold text-black/40 uppercase tracking-[0.3em] mt-4">Sector: Intelligence-Grid-{activeTab.substring(0,3).toUpperCase()}</p>
             </div>
             <div className="hidden md:flex gap-2">
-              <div className="h-10 w-24 border border-black/10 bg-white flex items-center justify-center text-[9px] font-black uppercase tracking-widest text-black/40">Filtered</div>
-              <div className="h-10 w-24 border border-black/10 bg-white flex items-center justify-center text-[9px] font-black uppercase tracking-widest text-black/40">Realtime</div>
+              <div className="h-10 w-28 border border-black/10 bg-white flex items-center justify-center text-[11px] font-black uppercase tracking-widest text-black/40">Filtered</div>
+              <div className="h-10 w-28 border border-black/10 bg-white flex items-center justify-center text-[11px] font-black uppercase tracking-widest text-black/40">Realtime</div>
             </div>
           </div>
 
