@@ -297,8 +297,10 @@ export default function AccountOverlay() {
             /* LOGIN FLOW */
             <div className="p-8 h-full bg-white flex flex-col items-center justify-center text-center">
               <div className="w-16 h-16 bg-black text-white rounded-2xl flex items-center justify-center font-black text-2xl mb-8">D</div>
-              <h2 className="text-[24px] font-black text-black uppercase tracking-tighter mb-2">DISCO ID Login</h2>
-              <p className="text-[15px] font-bold text-black/40 mb-10">Verify your mobile via WhatsApp to continue</p>              {view === 'login-phone' ? (
+              <h2 className="text-[24px] font-black text-black uppercase tracking-tighter mb-2">DISCO ID LOGIN</h2>
+              <p className="text-[14px] font-bold text-black/40 mb-10">Access your account with your permanent PIN</p>
+
+              {view === 'login-phone' ? (
                 <div className="w-full space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <div className="relative">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 border-r border-border pr-3 text-[16px] font-black text-black/20">+91</div>
@@ -318,14 +320,13 @@ export default function AccountOverlay() {
               ) : (
                 <div className="w-full space-y-8 animate-in zoom-in-95 duration-500">
                   {/* THE PERMANENT PIN CARD */}
-                  <div className="bg-black text-white p-8 rounded-[32px] space-y-2 relative overflow-hidden shadow-2xl border-4 border-white/10">
-                    <div className="absolute right-[-20px] top-[-20px] opacity-10 rotate-12">
-                      <ShoppingBag size={120} />
+                  <div className="bg-black text-white p-6 rounded-[24px] space-y-1 relative overflow-hidden shadow-2xl border-2 border-white/10">
+                    <div className="absolute right-[-10px] top-[-10px] opacity-10">
+                      <ShoppingBag size={80} />
                     </div>
-                    <div className="relative z-10 text-left">
-                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Permanent DISCO PIN</p>
-                      <h3 className="text-[48px] font-black tracking-[0.4em] leading-tight text-green-500">{permanentPin}</h3>
-                      <p className="text-[12px] font-bold text-white/60">This PIN is unique to {phone}.</p>
+                    <div className="relative z-10 text-center">
+                      <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/40">Your Permanent PIN</p>
+                      <h3 className="text-[40px] font-black tracking-[0.4em] leading-tight text-green-500">{permanentPin}</h3>
                     </div>
                   </div>
 
@@ -346,7 +347,7 @@ export default function AccountOverlay() {
                                 otpRefs.current[i - 1]?.focus();
                               }
                             }}
-                            className="w-14 h-16 border-2 border-black/10 rounded-2xl text-center font-black text-2xl outline-none focus:border-black bg-white shadow-inner" 
+                            className="w-12 h-14 border-2 border-black/10 rounded-xl text-center font-black text-2xl outline-none focus:border-black bg-white" 
                           />
                         ))}
                       </div>
@@ -354,18 +355,19 @@ export default function AccountOverlay() {
                     
                     <button 
                       onClick={handleVerify} 
-                      className={`w-full h-16 rounded-2xl font-black uppercase tracking-widest text-[13px] transition-all active-scale ${otp.join('').length === 4 ? 'bg-green-700 text-white shadow-xl' : 'bg-black/5 text-black/20'}`}
+                      className={`w-full h-14 rounded-xl font-black uppercase tracking-widest text-[12px] transition-all active-scale ${otp.join('').length === 4 ? 'bg-green-700 text-white shadow-xl' : 'bg-black/5 text-black/20'}`}
                       disabled={otp.join('').length !== 4}
                     >
                       Login to DISCO
                     </button>
                     
-                    <button onClick={() => { setView('login-phone'); setOtp(['','','','']); }} className="text-[11px] font-black text-black/20 uppercase hover:text-black border-b border-transparent hover:border-black/10 pb-1">
-                      Wrong Number? Change it
+                    <button onClick={() => { setView('login-phone'); setOtp(['','','','']); }} className="text-[10px] font-black text-black/20 uppercase hover:text-black">
+                      Change Number
                     </button>
                   </div>
                 </div>
-              )})}
+              )}
+            </div>
             </div>
           )}
         </div>
