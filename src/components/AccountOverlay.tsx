@@ -27,14 +27,19 @@ export default function AccountOverlay() {
 
   const BIZ_WA = "919441276604";
 
-  // Deterministic PIN Generator (Static for each number)
+  // Deterministic PIN Generator (Highly Unique for every digit change)
   const generatePermanentPin = (phoneNumber: string) => {
     if (!phoneNumber || phoneNumber.length < 10) return '0000';
-    const digits = phoneNumber.split('').map(Number);
-    const sum = digits.reduce((a, b) => a + b, 0);
-    const last3 = parseInt(phoneNumber.slice(-3));
-    // Simple but unique deterministic formula
-    const pin = (last3 + sum + 100) % 10000;
+    
+    // Using a simple hashing algorithm to ensure uniqueness
+    let hash = 0;
+    for (let i = 0; i < phoneNumber.length; i++) {
+      hash = ((hash << 5) - hash) + phoneNumber.charCodeAt(i);
+      hash |= 0; // Convert to 32bit integer
+    }
+    
+    // Convert hash to a positive 4-digit PIN
+    const pin = Math.abs(hash % 10000);
     return pin.toString().padStart(4, '0');
   };
 
@@ -146,6 +151,18 @@ export default function AccountOverlay() {
                         <ChevronRight size={18} className="text-black/10" />
                       </button>
                     ))}
+                    <button 
+                      onClick={logout}
+                      className="w-full p-5 flex items-center justify-between hover:bg-red-50 transition-colors"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-red-100 text-red-600 rounded-xl flex items-center justify-center">
+                          <LogOut size={20} />
+                        </div>
+                        <span className="text-[15px] font-bold text-red-600">Switch / Logout</span>
+                      </div>
+                      <ChevronRight size={18} className="text-red-200" />
+                    </button>
                   </div>
                 </div>
               )}
