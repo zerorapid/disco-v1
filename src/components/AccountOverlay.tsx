@@ -66,16 +66,35 @@ export default function AccountOverlay() {
     }, 600);
   };
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     const enteredOtp = otp.join('');
-    if (enteredOtp === permanentPin || enteredOtp === '1234') { 
+    if (enteredOtp === permanentPin) { 
       setLoading(true);
+      
+      // LOG ACTIVITY TO SUPABASE
+      try {
+        await supabase.from('user_activity').insert({
+          customer_phone: phone,
+          action: 'LOGIN',
+          details: { method: 'Permanent PIN', timestamp: new Date().toISOString() }
+        });
+        
+        // Update/Create Profile
+        await supabase.from('profiles').upsert({
+          phone: phone,
+          last_active: new Date().toISOString(),
+          permanent_pin: permanentPin
+        });
+      } catch (err) {
+        console.error("Activity Log Error:", err);
+      }
+
       setTimeout(() => {
         login(phone);
         setLoading(false);
       }, 800);
     } else {
-      alert("Incorrect DISCO PIN. Please check your permanent PIN displayed above.");
+      alert("Incorrect DISCO PIN. Please check your unique PIN displayed above.");
     }
   };
 
