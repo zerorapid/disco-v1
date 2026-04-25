@@ -2,7 +2,8 @@
 
 import { useCart } from '@/context/CartContext';
 import { useAccount } from '@/context/AccountContext';
-import { X, ChevronLeft, Plus, Minus, MapPin, Loader2, Home, Briefcase, ChevronRight, Timer, Ticket, CheckCircle2, ShoppingBag, ShieldCheck, Zap } from 'lucide-react';
+import { useUI } from '@/context/UIContext';
+import { X, ChevronLeft, Plus, Minus, MapPin, Loader2, Home, Briefcase, ChevronRight, Timer, Ticket, CheckCircle2, ShoppingBag, ShieldCheck, Zap, Navigation, Clock } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
@@ -11,12 +12,14 @@ type CheckoutView = 'cart' | 'address-select' | 'address-add' | 'payment' | 'ver
 export default function CartOverlay() {
   const { cart, totalItems, totalPrice, isCartOpen, setIsCartOpen, updateQuantity, clearCart } = useCart();
   const { addresses, addAddress, user, setIsAccountOpen } = useAccount();
+  const { selectedAddress, setIsLocationOpen } = useUI();
   const [view, setView] = useState<CheckoutView>('cart');
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [utr, setUtr] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [needsCarryBag, setNeedsCarryBag] = useState(false);
+  const [deliverySlot, setDeliverySlot] = useState('Instant');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -45,6 +48,7 @@ export default function CartOverlay() {
       setView('address-select');
     } else if (view === 'address-select') {
       if (selectedAddressId) setView('payment');
+      else if (selectedAddressId === 'current') setView('payment');
       else alert("Please select an address");
     } else if (view === 'payment') {
       if (utr.length < 12) {
@@ -55,7 +59,10 @@ export default function CartOverlay() {
       setView('verifying');
       
       setTimeout(async () => {
-        const addr = addresses.find(a => a.id === selectedAddressId);
+        let addr = addresses.find(a => a.id === selectedAddressId);
+        if (selectedAddressId === 'current') {
+          addr = { ...selectedAddress, id: 'current', type: 'Current' } as any;
+        }
         try {
           await supabase.from('orders').insert([{
             customer_name: user?.name || 'Guest',
@@ -71,7 +78,8 @@ export default function CartOverlay() {
             delivery_fee: deliveryCharge,
             platform_fee: platformFee,
             handling_fee: handlingCharge,
-            carry_bag_fee: carryBagCharge
+            carry_bag_fee: carryBagCharge,
+            delivery_slot: deliverySlot
           }]);
           
           setView('success');
@@ -285,7 +293,7 @@ export default function CartOverlay() {
               <div className="pt-4 text-center space-y-4 opacity-30">
                 <div className="flex items-center justify-center gap-2">
                   <ShieldCheck size={14} />
-                  <span className="text-[10px] font-bold uppercase tracking-widest">Secured by LOUD Intelligence</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Secured by DISCO Intelligence</span>
                 </div>
                 <p className="text-[9px] font-medium leading-relaxed px-10">
                   By proceeding, you agree to our terms and conditions. Delivery times are estimated based on warehouse load.
@@ -298,15 +306,34 @@ export default function CartOverlay() {
           {view === 'address-select' && (
             <div className="p-5 space-y-5 pb-32">
               <button 
-                onClick={() => setIsAccountOpen(true)} 
+                onClick={() => setIsLocationOpen(true)} 
                 className="w-full bg-black text-white h-14 flex items-center justify-center gap-3 active-scale"
               >
-                <Plus size={20} />
-                <span className="text-caption">Add Delivery Spot</span>
+                <MapPin size={20} />
+                <span className="text-caption">Change Current Location</span>
               </button>
               
               <div className="space-y-3">
-                <h4 className="text-caption text-black/40">Saved Locations</h4>
+                <h4 className="text-caption text-black/40">Active Choice</h4>
+                {selectedAddress && (
+                  <div 
+                    onClick={() => setSelectedAddressId('current')}
+                    className={`bg-white p-5 border-thin flex gap-5 cursor-pointer transition-all active-scale ${selectedAddressId === 'current' ? 'border-black ring-1 ring-black' : ''}`}
+                  >
+                    <div className="w-12 h-12 bg-green-50 flex items-center justify-center text-green-600">
+                      <Navigation size={24} fill="currentColor" />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <h4 className="text-body-primary font-bold">Detected Location</h4>
+                      <p className="text-body-secondary leading-tight">{selectedAddress.title}, {selectedAddress.area}</p>
+                    </div>
+                    {selectedAddressId === 'current' && <CheckCircle2 className="text-black" size={20} />}
+                  </div>
+                )}
+
+                <div className="pt-4 border-t border-uber-gray">
+                  <h4 className="text-caption text-black/40">Saved Locations</h4>
+                </div>
                 {addresses.length > 0 ? (
                   addresses.map((addr) => (
                     <div 
@@ -337,6 +364,34 @@ export default function CartOverlay() {
           {/* PAYMENT VIEW */}
           {view === 'payment' && (
             <div className="p-5 space-y-6 pb-32">
+              {/* TIME SLOT SELECTOR */}
+              <div className="bg-white border-thin p-5 space-y-4">
+                <div className="flex items-center gap-2 text-caption text-black/40 uppercase tracking-widest">
+                  <Clock size={16} />
+                  Choose Delivery Time
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: 'Instant', label: 'Instant', sub: '12-15 Mins', icon: Zap },
+                    { id: 'Morning', label: 'Morning', sub: '7am - 9am', icon: Timer },
+                    { id: 'Night', label: 'Late Night', sub: '11pm - 12am', icon: Clock },
+                    { id: 'Tomorrow', label: 'Tomorrow', sub: '7am - 8am', icon: CheckCircle2 }
+                  ].map((slot) => (
+                    <button 
+                      key={slot.id}
+                      onClick={() => setDeliverySlot(slot.id)}
+                      className={`p-3 border-thin text-left transition-all active-scale ${deliverySlot === slot.id ? 'bg-black text-white border-black shadow-lg' : 'bg-white hover:bg-uber-gray'}`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[12px] font-black uppercase tracking-tight">{slot.label}</span>
+                        <slot.icon size={12} className={deliverySlot === slot.id ? 'text-green-500' : 'text-black/20'} />
+                      </div>
+                      <p className={`text-[10px] font-bold ${deliverySlot === slot.id ? 'text-white/60' : 'text-black/40'}`}>{slot.sub}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="bg-white border-thin p-8 text-center space-y-8">
                 <div className="w-56 h-56 bg-white border-thin mx-auto p-4 flex items-center justify-center shadow-inner">
                   <img 

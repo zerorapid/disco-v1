@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import Overlays from "@/components/Overlays";
 
 export const metadata: Metadata = {
-  title: "LOUD | Quick Commerce Enterprise",
+  title: "DISCO | Quick Commerce Enterprise",
   description: "Elite 10-minute delivery warehouse ecosystem.",
 };
 

@@ -42,7 +42,7 @@ export default function LocationOverlay() {
       try {
         const response = await fetch(
           `https://nominatim.openstreetmap.org/search?format=json&q=${searchTerm}&countrycodes=in&limit=8&addressdetails=1`,
-          { headers: { 'Accept-Language': 'en', 'User-Agent': 'LOUD-QuickCommerce' } }
+          { headers: { 'Accept-Language': 'en', 'User-Agent': 'DISCO-QuickCommerce' } }
         );
         const data = await response.json();
         

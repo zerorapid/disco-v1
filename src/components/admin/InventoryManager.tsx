@@ -144,7 +144,7 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
               <input required type="number" value={newProduct.price || ''} onChange={e => setNewProduct({...newProduct, price: parseInt(e.target.value) || 0})} className="w-full h-12 bg-uber-gray px-4 font-bold" />
             </div>
             <div className="space-y-2">
-              <label className="text-caption text-black/40">LOUD Price (Set to 1 for Deals)</label>
+              <label className="text-caption text-black/40">DISCO Price (Set to 1 for Deals)</label>
               <input required type="number" value={newProduct.discount_price || ''} onChange={e => setNewProduct({...newProduct, discount_price: parseInt(e.target.value) || 0})} className="w-full h-12 bg-uber-gray px-4 font-bold" />
             </div>
             <div className="space-y-2">
@@ -200,7 +200,7 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
               <input required type="number" value={editingProduct.price || ''} onChange={e => setEditingProduct({...editingProduct, price: parseInt(e.target.value) || 0})} className="w-full h-12 bg-uber-gray px-4 font-bold" />
             </div>
             <div className="space-y-2">
-              <label className="text-caption text-black/40">LOUD Price (Set to 1 for Deals)</label>
+              <label className="text-caption text-black/40">DISCO Price (Set to 1 for Deals)</label>
               <input required type="number" value={editingProduct.discount_price || ''} onChange={e => setEditingProduct({...editingProduct, discount_price: parseInt(e.target.value) || 0})} className="w-full h-12 bg-uber-gray px-4 font-bold" />
             </div>
           </div>

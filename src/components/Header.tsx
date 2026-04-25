@@ -1,19 +1,23 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useAccount } from '@/context/AccountContext';
 import { useUI } from '@/context/UIContext';
-import { ShoppingBag, Search, User, X, MapPin, Zap } from 'lucide-react';
+import { ShoppingBag, Search, User, X, MapPin, Zap, Bell, ShieldCheck } from 'lucide-react';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
 }
 
 export default function Header({ onSearch }: HeaderProps) {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith('/admin');
+  
   const { totalItems, setIsCartOpen } = useCart();
   const { user, setIsAccountOpen, addresses } = useAccount();
-  const { isSearchOpen, setIsSearchOpen, searchQuery, setSearchQuery } = useUI();
+  const { isSearchOpen, setIsSearchOpen, searchQuery, setSearchQuery, setIsNotificationsOpen, selectedAddress, setIsLocationOpen } = useUI();
   const [isScrolled, setIsScrolled] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -31,7 +35,22 @@ export default function Header({ onSearch }: HeaderProps) {
     }
   }, [isSearchOpen]);
 
-  const activeAddress = addresses[0] || { flat: "LOUD Warehouse", area: "Industrial Area" };
+  const activeAddress = selectedAddress || { title: "DISCO Warehouse", area: "Industrial Area" };
+
+  if (isAdmin) {
+    return (
+      <header className="fixed top-0 left-0 w-full h-16 z-50 bg-black text-white flex items-center px-6 justify-between">
+        <div className="flex items-center gap-3">
+          <ShieldCheck className="text-green-500" />
+          <h1 className="text-[18px] font-black uppercase tracking-tighter">DISCO Command Center</h1>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Admin Session Active</span>
+          <a href="/" className="text-[12px] font-black uppercase border-b border-white/20 hover:border-white transition-all">Go to Store</a>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header 
@@ -45,7 +64,7 @@ export default function Header({ onSearch }: HeaderProps) {
         {!isSearchOpen && (
           <div 
             className="flex flex-col cursor-pointer group active-scale flex-1 min-w-0"
-            onClick={() => setIsAccountOpen(true)}
+            onClick={() => setIsLocationOpen(true)}
           >
             <div className="flex items-center gap-1.5">
               <span className="text-caption text-black/40">Delivery to</span>
@@ -56,7 +75,7 @@ export default function Header({ onSearch }: HeaderProps) {
             </div>
             <div className="flex items-center gap-1 group-hover:gap-2 transition-all">
               <h2 className="text-[14px] md:text-[16px] font-black text-black uppercase tracking-tighter truncate">
-                {activeAddress.flat}, {activeAddress.area}
+                {activeAddress.title}, {activeAddress.area}
               </h2>
               <MapPin size={14} className="shrink-0 text-black/20 group-hover:text-black transition-colors" />
             </div>
@@ -129,6 +148,15 @@ export default function Header({ onSearch }: HeaderProps) {
         {/* RIGHT: ACTIONS */}
         {!isSearchOpen && (
           <div className="flex items-center gap-2 md:gap-4 shrink-0">
+            {/* Notification Bell */}
+            <button 
+              onClick={() => setIsNotificationsOpen(true)}
+              className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center hover:bg-uber-gray transition-colors active-scale relative"
+            >
+              <Bell size={24} className="text-black" />
+              <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-600 rounded-full animate-pulse" />
+            </button>
+
             {/* Account Icon */}
             <button 
               onClick={() => setIsAccountOpen(true)}

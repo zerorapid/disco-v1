@@ -43,7 +43,7 @@ export default function DealsPage() {
           
           <h1 className="text-heading-1 mb-2">₹1 Loot Deals</h1>
           <p className="text-body-primary opacity-60 max-w-md">
-            LOUD Flash Sale is active! Grab elite items for just ₹1. Limited stock per user.
+            DISCO Flash Sale is active! Grab elite items for just ₹1. Limited stock per user.
           </p>
         </div>
       </div>
@@ -65,7 +65,7 @@ export default function DealsPage() {
           <div className="bg-white border-thin p-20 text-center space-y-4 shadow-xl">
             <Zap size={48} className="mx-auto text-black/10" />
             <h2 className="text-heading-3">All ₹1 Deals Sniped!</h2>
-            <p className="text-body-secondary">New flash deals drop at the top of every hour. Stay loud.</p>
+            <p className="text-body-secondary">New flash deals drop at the top of every hour. Stay disco.</p>
             <button 
               onClick={() => window.location.href = '/'}
               className="px-8 h-12 bg-black text-white text-caption active-scale"
@@ -87,7 +87,7 @@ export default function DealsPage() {
             </div>
             <div className="space-y-2">
               <div className="text-[20px] font-black opacity-10">02</div>
-              <p className="text-body-primary text-sm font-bold">Available only for verified LOUD members.</p>
+              <p className="text-body-primary text-sm font-bold">Available only for verified DISCO members.</p>
             </div>
             <div className="space-y-2">
               <div className="text-[20px] font-black opacity-10">03</div>

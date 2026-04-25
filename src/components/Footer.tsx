@@ -3,7 +3,7 @@
 const USEFUL_LINKS = [
   ['Blog', 'Privacy', 'Terms', 'FAQs', 'Security', 'Contact'],
   ['Partner', 'Franchise', 'Seller', 'Warehouse', 'Deliver', 'Resources'],
-  ['Recipes', 'Bistro', 'District', 'LOUD Ambulance']
+  ['Recipes', 'Bistro', 'District', 'DISCO Ambulance']
 ];
 
 const CATEGORIES = [
@@ -57,7 +57,7 @@ export default function Footer() {
         {/* SOCIAL & APP DOWNLOAD */}
         <div className="flex flex-col lg:flex-row items-center justify-between gap-8 pt-12 border-t border-border">
           <div className="text-[14px] text-black/60 font-medium text-center lg:text-left">
-            © LOUD Commerce Private Limited, 2024-2026
+            © DISCO Commerce Private Limited, 2024-2026
           </div>
 
           <div className="flex flex-col md:flex-row items-center gap-8">
@@ -85,7 +85,7 @@ export default function Footer() {
 
         {/* DISCLAIMER */}
         <div className="mt-12 text-[12px] leading-relaxed text-black/40 font-medium max-w-5xl">
-          “LOUD” is owned & managed by “LOUD Commerce Private Limited” and is not related, linked or interconnected in whatsoever manner or nature, to “GROFFR.COM” which is a real estate services business operated by “Redstone Consultancy Services Private Limited”.
+          “DISCO” is owned & managed by “DISCO Commerce Private Limited” and is not related, linked or interconnected in whatsoever manner or nature, to “GROFFR.COM” which is a real estate services business operated by “Redstone Consultancy Services Private Limited”.
         </div>
       </div>
     </footer>

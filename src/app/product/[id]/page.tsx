@@ -195,7 +195,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             <h3 className="text-[18px] md:text-[20px] font-black text-black uppercase tracking-tighter pt-4">Highlights</h3>
             <div className="space-y-4">
               {[
-                { label: "Brand", value: "LOUD Premium" },
+                { label: "Brand", value: "DISCO Premium" },
                 { label: "Category", value: product.category || "General" },
                 { label: "Weight", value: product.weight >= 1000 ? `${product.weight/1000} kg` : `${product.weight} g` }
               ].map((item, i) => (
@@ -216,7 +216,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               </div>
               <div className="flex flex-col">
                 <span className="text-[11px] font-black text-black/40 uppercase">Seller</span>
-                <span className="text-[13px] font-black text-black">LOUD Convenience Pvt Ltd</span>
+                <span className="text-[13px] font-black text-black">DISCO Convenience Pvt Ltd</span>
               </div>
             </div>
           </div>
