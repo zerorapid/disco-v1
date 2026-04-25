@@ -91,22 +91,22 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
   return (
     <div className="space-y-6">
       {/* ACTION HEADER */}
-      <div className="flex gap-4">
+      <div className="flex flex-col md:flex-row gap-4">
         {!showAddForm && !editingProduct && (
           <button 
             onClick={() => setShowAddForm(true)}
-            className="flex-1 h-20 bg-white border border-black/10 flex items-center justify-center gap-4 text-[13px] font-black uppercase tracking-widest text-black hover:border-black transition-all active-scale shadow-sm"
+            className="flex-1 h-16 md:h-20 bg-white border border-black/10 flex items-center justify-center gap-4 text-[12px] md:text-[13px] font-black uppercase tracking-widest text-black hover:border-black transition-all active-scale shadow-sm"
           >
             <Plus size={24} />
-            Register New SKU
+            Register SKU
           </button>
         )}
         <button 
           onClick={() => setFilterDeals(!filterDeals)}
-          className={`px-10 h-20 border flex items-center justify-center gap-4 text-[13px] font-black uppercase tracking-widest transition-all active-scale shadow-sm ${filterDeals ? 'bg-green-600 border-green-600 text-white' : 'bg-white border-black/10 text-black/40'}`}
+          className={`flex-1 md:flex-none md:px-10 h-16 md:h-20 border flex items-center justify-center gap-4 text-[12px] md:text-[13px] font-black uppercase tracking-widest transition-all active-scale shadow-sm ${filterDeals ? 'bg-green-600 border-green-600 text-white' : 'bg-white border-black/10 text-black/40'}`}
         >
           <Zap size={22} fill={filterDeals ? "white" : "none"} />
-          {filterDeals ? 'Active Promotions Only' : 'Filter Promotions'}
+          {filterDeals ? 'Promotions Active' : 'Filter Deals'}
         </button>
       </div>
 
@@ -254,17 +254,17 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
           >
             
             {/* PRODUCT INFO */}
-            <div className="col-span-5 flex items-center gap-8">
-              <div className="w-20 h-20 bg-white border border-black/10 flex items-center justify-center p-2 transition-transform group-hover:scale-105">
+            <div className="col-span-5 flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 text-center md:text-left">
+              <div className="w-24 h-24 md:w-20 md:h-20 bg-white border border-black/10 flex items-center justify-center p-2 transition-transform group-hover:scale-105 shrink-0">
                 <img src={p.image_url} className="max-w-full max-h-full object-contain mix-blend-multiply" alt=""/>
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="text-[18px] font-black uppercase tracking-tight truncate">{p.name}</h4>
-                <p className="text-[13px] font-bold text-black/40 uppercase tracking-widest mt-1.5">
-                  {p.weight}g / ml • Sourcing Cost: ₹{p.sourcing_cost || 0}
+                <h4 className="text-[20px] md:text-[18px] font-black uppercase tracking-tight truncate">{p.name}</h4>
+                <p className="text-[12px] md:text-[13px] font-bold text-black/40 uppercase tracking-widest mt-1.5">
+                  {p.weight}g / ml • Cost: ₹{p.sourcing_cost || 0}
                 </p>
                 {p.discount_price === 1 && (
-                  <span className="inline-block mt-3 bg-green-600 text-white text-[11px] px-3 py-1 font-black uppercase tracking-widest">Active Promotion</span>
+                  <span className="inline-block mt-3 bg-green-600 text-white text-[10px] px-3 py-1 font-black uppercase tracking-widest">PROMO ACTIVE</span>
                 )}
               </div>
             </div>
@@ -284,17 +284,17 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
             </div>
 
             {/* ACTIONS */}
-            <div className="col-span-3 flex items-center justify-between lg:justify-end gap-8">
-              <div className="flex items-center gap-3 bg-white border border-black/10 p-1">
+            <div className="col-span-3 flex flex-col md:flex-row items-center justify-between lg:justify-end gap-6 md:gap-8">
+              <div className="flex items-center gap-3 bg-white border border-black/10 p-1 w-full md:w-auto justify-between md:justify-start">
                 <button 
                   onClick={() => updateStock(p.id, -1)}
                   aria-label="Decrease stock"
-                  className="w-12 h-12 flex items-center justify-center hover:bg-uber-gray active-scale transition-all"
+                  className="w-14 h-14 md:w-12 md:h-12 flex items-center justify-center hover:bg-uber-gray active-scale transition-all"
                 >
-                  <Minus size={18} />
+                  <Minus size={20} />
                 </button>
-                <div className="flex items-center gap-3 px-2">
-                  <div className={`w-12 text-center font-black text-[20px] ${p.stock < 5 ? 'text-red-600' : 'text-black'}`}>
+                <div className="flex items-center gap-2 px-4">
+                  <div className={`text-center font-black text-[22px] md:text-[20px] ${p.stock < 5 ? 'text-red-600' : 'text-black'}`}>
                     {p.stock}
                   </div>
                   {p.stock < 5 && <span className="text-red-600 text-[18px]" aria-hidden="true">⚠️</span>}
@@ -302,17 +302,18 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
                 <button 
                   onClick={() => updateStock(p.id, 1)}
                   aria-label="Increase stock"
-                  className="w-12 h-12 flex items-center justify-center hover:bg-uber-gray active-scale transition-all"
+                  className="w-14 h-14 md:w-12 md:h-12 flex items-center justify-center hover:bg-uber-gray active-scale transition-all"
                 >
-                  <Plus size={18} />
+                  <Plus size={20} />
                 </button>
               </div>
               
               <button 
                 onClick={() => setEditingProduct(p)}
-                className="w-14 h-14 bg-black text-white flex items-center justify-center hover:bg-black/80 transition-all active-scale"
+                className="w-full md:w-14 h-14 bg-black text-white flex items-center justify-center hover:bg-black/80 transition-all active-scale"
               >
                 <Edit3 size={20} />
+                <span className="md:hidden ml-3 text-[11px] font-black uppercase tracking-widest">Edit SKU</span>
               </button>
             </div>
           </div>

@@ -226,20 +226,20 @@ export default function AdminPage() {
         {/* STICKY KPI DASHBOARD */}
         <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-black/10 px-4 md:px-16 py-4 md:py-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-8 max-w-6xl">
-            <div className="grid grid-cols-3 gap-4 md:gap-16 flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-16 flex-1">
               <div className="flex flex-col">
-                <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.2em] text-black/40 mb-1.5 truncate">Revenue</span>
+                <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.2em] text-black/40 mb-1.5 truncate">Total Revenue</span>
                 <div className="flex items-baseline gap-1 md:gap-2">
-                  <span className="text-2xl md:text-4xl font-black tracking-tighter text-green-700">₹{stats.revenue.toLocaleString()}</span>
+                  <span className="text-3xl md:text-4xl font-black tracking-tighter text-green-700">₹{stats.revenue.toLocaleString()}</span>
                 </div>
               </div>
-              <div className="flex flex-col border-l border-black/5 pl-4 md:pl-0 md:border-none">
-                <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.2em] text-black/40 mb-1.5 truncate">Orders</span>
-                <span className="text-2xl md:text-4xl font-black tracking-tighter">{stats.orders}</span>
+              <div className="flex flex-col border-t md:border-t-0 md:border-l border-black/5 pt-4 md:pt-0 md:pl-0 md:border-none">
+                <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.2em] text-black/40 mb-1.5 truncate">Total Orders</span>
+                <span className="text-3xl md:text-4xl font-black tracking-tighter">{stats.orders}</span>
               </div>
-              <div className="flex flex-col border-l border-black/5 pl-4 md:pl-0 md:border-none">
-                <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.2em] text-black/40 mb-1.5 truncate">Alerts</span>
-                <span className={`text-2xl md:text-4xl font-black tracking-tighter ${products.filter(p => p.stock < 5).length > 0 ? 'text-red-600' : ''}`}>
+              <div className="flex flex-col border-t md:border-t-0 md:border-l border-black/5 pt-4 md:pt-0 md:pl-0 md:border-none">
+                <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.2em] text-black/40 mb-1.5 truncate">System Alerts</span>
+                <span className={`text-3xl md:text-4xl font-black tracking-tighter ${products.filter(p => p.stock < 5).length > 0 ? 'text-red-600' : ''}`}>
                   {products.filter(p => p.stock < 5).length}
                 </span>
               </div>

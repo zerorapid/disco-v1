@@ -82,8 +82,8 @@ export default function OrderPulse({ searchQuery = '' }: OrderPulseProps) {
         ))}
       </div>
 
-      {/* LEDGER HEADER */}
-      <div className="grid grid-cols-[140px_1fr_1fr_140px_160px_140px] gap-4 px-6 py-4 bg-uber-gray/50 border-b border-black/10 text-[11px] font-black uppercase tracking-[0.2em] text-black/40">
+      {/* LEDGER HEADER - Desktop Only */}
+      <div className="hidden md:grid grid-cols-[140px_1fr_1fr_140px_160px_140px] gap-4 px-6 py-4 bg-uber-gray/50 border-b border-black/10 text-[11px] font-black uppercase tracking-[0.2em] text-black/40">
         <div>Order Ref</div>
         <div>Customer / Account</div>
         <div>Line Items</div>
@@ -95,8 +95,9 @@ export default function OrderPulse({ searchQuery = '' }: OrderPulseProps) {
       <div className="divide-y divide-black/5 bg-white border border-black/10">
         {filteredOrders.map((order) => (
           <div key={order.id} className="transition-all duration-300">
+            {/* DESKTOP ROW */}
             <div 
-              className={`grid grid-cols-[140px_1fr_1fr_140px_160px_140px] gap-4 px-6 py-5 items-center hover:bg-black/[0.02] transition-colors group relative cursor-pointer ${expandedOrder === order.id ? 'bg-black/[0.03]' : ''}`}
+              className={`hidden md:grid grid-cols-[140px_1fr_1fr_140px_160px_140px] gap-4 px-6 py-5 items-center hover:bg-black/[0.02] transition-colors group relative cursor-pointer ${expandedOrder === order.id ? 'bg-black/[0.03]' : ''}`}
               onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
             >
               {/* COL 1: PULSE & ID */}
@@ -239,6 +240,72 @@ export default function OrderPulse({ searchQuery = '' }: OrderPulseProps) {
                       </button>
                     </div>
                   )}
+                </div>
+              </div>
+            </div>
+
+            {/* MOBILE CARD */}
+            <div 
+              className="md:hidden p-5 space-y-4 border-b border-black/5 active:bg-black/[0.02]"
+              onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
+            >
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${
+                      order.status === 'Packing' ? 'bg-orange-500' : 
+                      order.status === 'Shipped' ? 'bg-blue-500' : 
+                      order.status === 'Cancelled' ? 'bg-red-500' : 
+                      order.status === 'Issue' ? 'bg-yellow-400' : 'bg-green-500'
+                    } animate-pulse`} />
+                    <span className="text-[14px] font-black tracking-tighter">#{order.id.toString().slice(-4)}</span>
+                    <span className="text-[10px] font-bold text-black/30 uppercase tracking-widest">{new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  </div>
+                  <h3 className="text-[15px] font-bold text-black">{order.customer_name || 'Customer'}</h3>
+                </div>
+                <div className="text-right">
+                  <h3 className="text-[18px] font-black tracking-tighter leading-none">₹{order.total_amount}</h3>
+                  <span className={`text-[9px] font-black uppercase tracking-widest ${order.utr ? 'text-green-600' : 'text-red-500'}`}>
+                    {order.utr ? 'PAID' : 'PENDING'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-3 bg-uber-gray/50 text-[11px] font-bold text-black/60 line-clamp-1">
+                {order.items?.map((it: any) => `${it.quantity || 1}x ${it.name}`).join(', ')}
+              </div>
+
+              <div className="flex items-center justify-between pt-2">
+                <div className={`px-3 py-1 text-[9px] font-black uppercase tracking-widest border ${
+                  order.status === 'Packing' ? 'border-orange-200 bg-orange-50 text-orange-700' : 
+                  order.status === 'Shipped' ? 'border-blue-200 bg-blue-50 text-blue-700' : 
+                  'border-green-200 bg-green-50 text-green-700'
+                }`}>
+                  {order.status}
+                </div>
+                <div className="flex gap-2">
+                  {order.status === 'Packing' && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); updateStatus(order.id, 'Shipped'); }}
+                      className="h-10 px-6 bg-black text-white text-[10px] font-black uppercase tracking-widest"
+                    >
+                      Ship
+                    </button>
+                  )}
+                  {order.status === 'Shipped' && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); updateStatus(order.id, 'Delivered'); }}
+                      className="h-10 px-6 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest"
+                    >
+                      Drop
+                    </button>
+                  )}
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === order.id ? null : order.id); }}
+                    className="w-10 h-10 border border-black/10 flex items-center justify-center"
+                  >
+                    <MoreVertical size={16} />
+                  </button>
                 </div>
               </div>
             </div>

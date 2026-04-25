@@ -86,18 +86,18 @@ export default function CustomerList({ searchQuery = '' }: CustomerListProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-8 md:gap-16">
-                <div className="text-center md:text-left">
-                  <p className="text-[10px] text-black/20 font-black uppercase tracking-[0.2em] mb-1">Orders</p>
-                  <p className="text-2xl font-black">{customer.total_orders}</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-16">
+                <div className="text-left">
+                  <p className="text-[9px] text-black/20 font-black uppercase tracking-[0.2em] mb-1">Orders</p>
+                  <p className="text-xl md:text-2xl font-black">{customer.total_orders}</p>
                 </div>
-                <div className="text-center md:text-left">
-                  <p className="text-[10px] text-black/20 font-black uppercase tracking-[0.2em] mb-1">LTV</p>
-                  <p className="text-2xl font-black text-green-700">₹{customer.total_spend}</p>
+                <div className="text-left">
+                  <p className="text-[9px] text-black/20 font-black uppercase tracking-[0.2em] mb-1">LTV</p>
+                  <p className="text-xl md:text-2xl font-black text-green-700">₹{customer.total_spend}</p>
                 </div>
-                <div className="text-center md:text-left">
-                  <p className="text-[10px] text-black/20 font-black uppercase tracking-[0.2em] mb-1">Permanent PIN</p>
-                  <p className="text-2xl text-blue-600 font-black tracking-widest">{generatePermanentPin(customer.phone)}</p>
+                <div className="text-left col-span-2 md:col-span-1 border-t md:border-t-0 border-black/5 pt-3 md:pt-0">
+                  <p className="text-[9px] text-black/20 font-black uppercase tracking-[0.2em] mb-1">Permanent PIN</p>
+                  <p className="text-xl md:text-2xl text-blue-600 font-black tracking-widest">{generatePermanentPin(customer.phone)}</p>
                 </div>
               </div>
             </div>
@@ -135,11 +135,11 @@ export default function CustomerList({ searchQuery = '' }: CustomerListProps) {
                   )}
                 </div>
                 
-                <div className="mt-8 flex gap-4">
-                  <a href={`tel:${customer.phone}`} className="flex-1 h-14 bg-black text-white text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-3 active-scale">
+                <div className="mt-8 flex flex-col md:flex-row gap-4">
+                  <a href={`tel:${customer.phone}`} className="h-14 bg-black text-white text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-3 active-scale">
                     <Phone size={18} /> Contact via Phone
                   </a>
-                  <a href={`https://wa.me/${customer.phone.replace(/\D/g, '')}`} target="_blank" className="flex-1 h-14 bg-white border border-black/10 text-black text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-3 active-scale">
+                  <a href={`https://wa.me/${customer.phone.replace(/\D/g, '')}`} target="_blank" className="h-14 bg-white border border-black/10 text-black text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-3 active-scale">
                     <ShoppingBag size={18} /> Send WhatsApp Message
                   </a>
                 </div>

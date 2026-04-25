@@ -68,9 +68,9 @@ export default function SupportManager() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-300px)] bg-white border border-black/10 overflow-hidden">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-300px)] bg-white border border-black/10 overflow-hidden relative">
       {/* CHAT LIST */}
-      <div className="w-80 border-r border-black/10 flex flex-col bg-uber-gray/10">
+      <div className={`w-full md:w-80 border-r border-black/10 flex flex-col bg-uber-gray/10 ${selectedPhone ? 'hidden md:flex' : 'flex'}`}>
         <div className="p-6 border-b border-black/10">
           <h3 className="text-[14px] font-black uppercase tracking-widest">Active Inquiries</h3>
         </div>
@@ -85,7 +85,7 @@ export default function SupportManager() {
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[12px] font-black tracking-tighter">{chat.customer_phone}</span>
-                <span className="text-[10px] font-bold text-black/30">{new Date(chat.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                <span className="text-[10px] font-bold text-black/40">{new Date(chat.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
               </div>
               <p className="text-[11px] font-medium text-black/60 line-clamp-1">{chat.message}</p>
             </button>
@@ -100,11 +100,17 @@ export default function SupportManager() {
       </div>
 
       {/* CHAT VIEW */}
-      <div className="flex-1 flex flex-col bg-white">
+      <div className={`flex-1 flex flex-col bg-white ${!selectedPhone ? 'hidden md:flex' : 'flex'}`}>
         {selectedPhone ? (
           <>
-            <div className="p-6 border-b border-black/10 flex items-center justify-between bg-white z-10">
+            <div className="p-4 md:p-6 border-b border-black/10 flex items-center justify-between bg-white z-10">
               <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setSelectedPhone(null)}
+                  className="md:hidden w-10 h-10 flex items-center justify-center bg-uber-gray"
+                >
+                  <MessageSquare size={20} />
+                </button>
                 <div className="w-10 h-10 bg-black text-white flex items-center justify-center font-black">
                   {selectedPhone.slice(-2)}
                 </div>
