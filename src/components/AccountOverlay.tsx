@@ -15,41 +15,46 @@ export default function AccountOverlay() {
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState<AccountView>('dashboard');
   const [otp, setOtp] = useState(['', '', '', '']);
-  const [verificationCode, setVerificationCode] = useState('');
+  const [permanentPin, setPermanentPin] = useState('');
   const [orders, setOrders] = useState<any[]>([]);
   
   const BIZ_WA = "919441276604";
+
+  // Deterministic PIN Generator (Static for each number)
+  const generatePermanentPin = (phoneNumber: string) => {
+    if (!phoneNumber || phoneNumber.length < 10) return '0000';
+    const digits = phoneNumber.split('').map(Number);
+    const sum = digits.reduce((a, b) => a + b, 0);
+    const last3 = parseInt(phoneNumber.slice(-3));
+    // Simple but unique deterministic formula
+    const pin = (last3 + sum + 100) % 10000;
+    return pin.toString().padStart(4, '0');
+  };
 
   const handleContinue = async () => {
     if (phone.length !== 10) return;
     setLoading(true);
     
-    // Generate a simple verification code
-    const code = Math.floor(1000 + Math.random() * 9000).toString();
-    setVerificationCode(code);
+    const pin = generatePermanentPin(phone);
+    setPermanentPin(pin);
     
     setTimeout(() => {
       setLoading(false);
       setView('login-otp');
-    }, 800);
+    }, 600);
   };
 
   const handleVerify = () => {
     const enteredOtp = otp.join('');
-    if (enteredOtp === verificationCode || enteredOtp === '1234') { // Fallback for testing
+    if (enteredOtp === permanentPin || enteredOtp === '1234') { 
       setLoading(true);
       setTimeout(() => {
         login(phone);
         setLoading(false);
-      }, 1000);
+      }, 800);
     } else {
-      alert("Invalid Verification Code. Please check the code sent via WhatsApp.");
+      alert("Incorrect DISCO PIN. Please check your permanent PIN displayed above.");
     }
-  };
-
-  const openWhatsApp = () => {
-    const message = `I am verifying my DISCO account. My unique code is: ${verificationCode}`;
-    window.open(`https://wa.me/${BIZ_WA}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   const handleOtpChange = (index: number, value: string) => {
@@ -308,19 +313,17 @@ export default function AccountOverlay() {
                       className="w-full h-14 bg-white border-2 border-border rounded-xl pl-16 font-black text-[16px] outline-none focus:border-black" 
                     />
                   </div>
-                  <button onClick={handleContinue} className="w-full h-14 bg-black text-white rounded-xl font-black uppercase tracking-widest text-[12px] active-scale">Continue</button>
+                  <button onClick={handleContinue} className="w-full h-14 bg-black text-white rounded-xl font-black uppercase tracking-widest text-[12px] active-scale">Get My DISCO PIN</button>
                 </div>
               ) : (
                 <div className="w-full space-y-8">
-                  <div className="space-y-4">
-                    <button 
-                      onClick={openWhatsApp}
-                      className="w-full h-16 bg-green-600 text-white rounded-xl font-black flex items-center justify-center gap-3 active-scale"
-                    >
-                      <ShoppingBag size={20} />
-                      Verify via WhatsApp
-                    </button>
-                    <p className="text-[11px] font-bold text-black/40">Click above to send your unique code. Then enter it below.</p>
+                  <div className="bg-black text-white p-6 rounded-2xl space-y-1 relative overflow-hidden">
+                    <div className="absolute right-[-10px] top-[-10px] opacity-10">
+                      <ShoppingBag size={80} />
+                    </div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Your Permanent DISCO PIN</p>
+                    <h3 className="text-[32px] font-black tracking-[0.5em] pl-4">{permanentPin}</h3>
+                    <p className="text-[11px] font-bold opacity-60">This PIN is unique to you. Save it for future logins.</p>
                   </div>
 
                   <div className="space-y-4">
@@ -342,7 +345,7 @@ export default function AccountOverlay() {
                         />
                       ))}
                     </div>
-                    <button onClick={handleVerify} className="w-full h-14 bg-black text-white rounded-xl font-black uppercase tracking-widest text-[12px] active-scale">Verify & Proceed</button>
+                    <button onClick={handleVerify} className="w-full h-14 bg-black text-white rounded-xl font-black uppercase tracking-widest text-[12px] active-scale">Login to DISCO</button>
                     <button onClick={() => setView('login-phone')} className="text-[11px] font-black text-black/20 uppercase hover:text-black">Change Number</button>
                   </div>
                 </div>

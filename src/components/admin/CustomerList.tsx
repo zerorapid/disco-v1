@@ -38,10 +38,14 @@ export default function CustomerList() {
     setLoading(false);
   }
 
-  const filteredCustomers = customers.filter(c => 
-    (c.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
-    (c.phone || '').includes(searchQuery)
-  );
+  const generatePermanentPin = (phoneNumber: string) => {
+    if (!phoneNumber || phoneNumber.length < 10) return '0000';
+    const digits = phoneNumber.split('').map(Number);
+    const sum = digits.reduce((a, b) => a + b, 0);
+    const last3 = parseInt(phoneNumber.slice(-3));
+    const pin = (last3 + sum + 100) % 10000;
+    return pin.toString().padStart(4, '0');
+  };
 
   if (loading) return <div className="h-64 flex items-center justify-center text-caption animate-pulse">Scanning Intelligence Hub...</div>;
 
@@ -95,8 +99,8 @@ export default function CustomerList() {
                   <p className="text-heading-3">₹{customer.total_spend}</p>
                 </div>
                 <div className="text-center md:text-left">
-                  <p className="text-[10px] text-black/20 font-black uppercase tracking-widest">Score</p>
-                  <p className="text-heading-3 text-green-600">{Math.min(100, (customer.total_orders * 5) + (customer.total_spend / 100)).toFixed(0)}</p>
+                  <p className="text-[10px] text-black/20 font-black uppercase tracking-widest">PIN</p>
+                  <p className="text-heading-3 text-blue-600 font-black">{generatePermanentPin(customer.phone)}</p>
                 </div>
               </div>
 
@@ -110,9 +114,14 @@ export default function CustomerList() {
             {/* EXPANDED ACTIVITY FEED */}
             {expandedPhone === customer.phone && (
               <div className="border-t border-uber-gray bg-uber-gray/30 p-6 animate-in slide-in-from-top-2 duration-300">
-                <h5 className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-4 flex items-center gap-2">
-                  <Calendar size={12} /> Intelligence Dossier (Recent Activity)
-                </h5>
+                <div className="flex justify-between items-center mb-6">
+                  <h5 className="text-[10px] font-black uppercase tracking-widest text-black/40 flex items-center gap-2">
+                    <Calendar size={12} /> Intelligence Dossier
+                  </h5>
+                  <div className="bg-black text-white px-3 py-1 rounded-full text-[10px] font-black uppercase">
+                    Permanent PIN: {generatePermanentPin(customer.phone)}
+                  </div>
+                </div>
                 <div className="space-y-2">
                   {activity.length > 0 ? activity.map((act, i) => (
                     <div key={i} className="bg-white p-3 border-thin flex items-center justify-between">
