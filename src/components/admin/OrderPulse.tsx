@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
-import { ShoppingBag, MapPin, Phone, CheckCircle2, MessageSquare, Truck, Package } from 'lucide-react';
+import { ShoppingBag, MapPin, Phone, CheckCircle2, MessageSquare, Truck, Package, Clock } from 'lucide-react';
 
 export default function OrderPulse() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -46,7 +46,13 @@ export default function OrderPulse() {
               order.status === 'Packing' ? 'bg-orange-50' : 
               order.status === 'Shipped' ? 'bg-blue-50' : 'bg-green-50'
             }`}>
-              <span className="text-caption font-black tracking-tighter">Order #{order.id.toString().slice(-4)}</span>
+              <div className="flex items-center gap-3">
+                <span className="text-caption font-black tracking-tighter">Order #{order.id.toString().slice(-4)}</span>
+                <div className="flex items-center gap-1 bg-white/50 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter text-black/60">
+                  <Clock size={10} />
+                  {order.delivery_slot || 'Instant'}
+                </div>
+              </div>
               <span className={`text-[10px] font-black uppercase px-2 py-1 ${
                 order.status === 'Packing' ? 'text-orange-700' : 
                 order.status === 'Shipped' ? 'text-blue-700' : 'text-green-700'

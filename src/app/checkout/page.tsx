@@ -57,7 +57,7 @@ export default function CheckoutPage() {
       items: cart,
       status: 'Packing',
       utr: utr,
-      address: addresses[selectedAddrIdx] || { type: 'Other', flat: 'Koti Hub', floor: '1', area: 'Koti Main Road', landmark: 'Hyderabad', name: user.name, phone: user.phone },
+      address: addresses[selectedAddrIdx] || { type: 'Other', flat: 'Disco Hub', floor: '1', area: 'Disco Main Road', landmark: 'Hyderabad', name: user.name, phone: user.phone },
       discount_applied: discount,
       discount_tier: appliedCoupon ? `30% (${appliedCoupon})` : '0%',
     }]).select();
@@ -177,7 +177,7 @@ export default function CheckoutPage() {
                 <div className="border border-border p-8 text-center space-y-8">
                   <div className="w-48 h-48 bg-white border-2 border-black mx-auto flex items-center justify-center p-4">
                     <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent('upi://pay?pa=9441276604@ybl&pn=LOUD%20COMMERCE&am=' + totalPrice)}`} 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent('upi://pay?pa=9441276604@ybl&pn=DISCO%20COMMERCE&am=' + totalPrice)}`} 
                       alt="UPI QR Code" 
                       className="w-full h-full"
                     />
@@ -221,7 +221,7 @@ export default function CheckoutPage() {
                 </div>
                 <div>
                   <h2 className="!text-4xl mb-4 font-black uppercase tracking-tighter">Order Locked In</h2>
-                  <p className="text-muted text-[13px] font-bold uppercase tracking-widest">Your delivery is being packed at Koti Warehouse.</p>
+                  <p className="text-muted text-[13px] font-bold uppercase tracking-widest">Your delivery is being packed at Disco Warehouse.</p>
                 </div>
                 <button 
                   onClick={() => router.push('/')}

@@ -39,31 +39,31 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
   const BIZ_WA = "919441276604";
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('loud_user');
-    const savedAddrs = localStorage.getItem('loud_addrs');
+    const savedUser = localStorage.getItem('disco_user');
+    const savedAddrs = localStorage.getItem('disco_addrs');
     if (savedUser) setUser(JSON.parse(savedUser));
     if (savedAddrs) setAddresses(JSON.parse(savedAddrs));
   }, []);
 
-  const login = (phone: string, name: string = "LOUD Customer") => {
+  const login = (phone: string, name: string = "DISCO Customer") => {
     const newUser = {
       name,
       phone,
       isAdmin: phone.includes(BIZ_WA) || phone === "9441276604"
     };
     setUser(newUser);
-    localStorage.setItem('loud_user', JSON.stringify(newUser));
+    localStorage.setItem('disco_user', JSON.stringify(newUser));
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('loud_user');
+    localStorage.removeItem('disco_user');
   };
 
   const addAddress = (addr: Address) => {
     const newAddrs = [...addresses, addr];
     setAddresses(newAddrs);
-    localStorage.setItem('loud_addrs', JSON.stringify(newAddrs));
+    localStorage.setItem('disco_addrs', JSON.stringify(newAddrs));
   };
 
   return (
