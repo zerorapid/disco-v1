@@ -23,11 +23,38 @@ export default function CheckoutPage() {
   
   const { user, addresses, setIsAccountOpen } = useAccount();
   
+  const [activeUpi, setActiveUpi] = useState({ vpa: '9441276604@ybl', name: 'Jayapal Reddy' });
+  const [totalWeight, setTotalWeight] = useState(0);
   const [step, setStep] = useState<'info' | 'payment' | 'success'>('info');
   const [selectedAddrIdx, setSelectedAddrIdx] = useState<number>(-1);
   const [utr, setUtr] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  // FETCH ACTIVE UPI & CALCULATE WEIGHT
+  useEffect(() => {
+    async function initCheckout() {
+      // Fetch Active UPI ID with remaining limit
+      const { data: upiData } = await supabase
+        .from('upi_configs')
+        .select('vpa_id, display_name')
+        .eq('is_active', true)
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .single();
+      
+      if (upiData) {
+        setActiveUpi({ vpa: upiData.vpa_id, name: upiData.display_name });
+      }
+
+      // Calculate Weight
+      const weight = cart.reduce((acc, item) => acc + (item.weight * item.quantity), 0);
+      setTotalWeight(weight / 1000); // Convert to KG
+    }
+    initCheckout();
+  }, [cart]);
+
+  const isHeavy = totalWeight > 15;
 
   // If user is not logged in, force open account overlay
   useEffect(() => {
@@ -49,7 +76,7 @@ export default function CheckoutPage() {
 
     setLoading(true);
     
-    // Create order in Supabase with Elite metadata
+    // 1. Create order in Supabase
     const { data, error } = await supabase.from('orders').insert([{
       customer_name: user.name,
       customer_phone: user.phone,
@@ -60,9 +87,17 @@ export default function CheckoutPage() {
       address: addresses[selectedAddrIdx] || { type: 'Other', flat: 'Disco Hub', floor: '1', area: 'Disco Main Road', landmark: 'Hyderabad', name: user.name, phone: user.phone },
       discount_applied: discount,
       discount_tier: appliedCoupon ? `30% (${appliedCoupon})` : '0%',
+      transport_type: isHeavy ? 'TRUCK' : 'BIKE',
+      total_weight_kg: totalWeight
     }]).select();
 
     if (!error && data) {
+      // 2. Increment UPI Revenue to track rotation limit
+      await supabase.rpc('increment_upi_revenue', { 
+        upi_vpa: activeUpi.vpa, 
+        amount: totalPrice 
+      });
+
       setStep('success');
       clearCart();
     } else {
@@ -150,6 +185,17 @@ export default function CheckoutPage() {
                   )}
                 </div>
                 
+                {/* HEAVY LOAD ALERT - Tactic 3, 6 */}
+                {isHeavy && (
+                  <div className="bg-red-600 text-white p-6 rounded-none mb-8 animate-pulse flex items-center gap-4">
+                    <div className="bg-white text-red-600 w-12 h-12 flex items-center justify-center font-black text-2xl">!</div>
+                    <div>
+                      <p className="font-black uppercase tracking-widest text-[14px]">Heavy Load Alert ({totalWeight.toFixed(1)}kg)</p>
+                      <p className="text-[10px] font-bold uppercase opacity-80">This order requires a specialized Borzo Truck instead of a Bike.</p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="mt-12 space-y-6">
                   <div>
                     <label className="block text-[10px] font-black uppercase tracking-widest mb-2 text-muted">Phone Number</label>
@@ -174,31 +220,32 @@ export default function CheckoutPage() {
             {step === 'payment' && (
               <div className="animate-in fade-in slide-in-from-left-4 duration-500">
                 <h2 className="!text-3xl mb-8 font-black uppercase tracking-tighter">Instant UPI Transfer</h2>
-                <div className="border border-border p-8 text-center space-y-8">
-                  <div className="w-48 h-48 bg-white border-2 border-black mx-auto flex items-center justify-center p-4">
+                <div className="border-4 border-black p-8 text-center space-y-8">
+                  <div className="w-56 h-56 bg-white border-2 border-black mx-auto flex items-center justify-center p-4 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]">
                     <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent('upi://pay?pa=9441276604@ybl&pn=DISCO%20COMMERCE&am=' + totalPrice)}`} 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent('upi://pay?pa=' + activeUpi.vpa + '&pn=' + encodeURIComponent(activeUpi.name) + '&am=' + totalPrice)}`} 
                       alt="UPI QR Code" 
                       className="w-full h-full"
                     />
                   </div>
                   <div>
-                    <p className="font-black text-[24px] mb-1 uppercase">Scan & Pay ₹{totalPrice}</p>
-                    <p className="text-muted text-[11px] font-bold uppercase tracking-widest">To: 9441276604@ybl</p>
+                    <p className="font-black text-[28px] mb-1 uppercase tracking-tighter">Scan & Pay ₹{totalPrice}</p>
+                    <p className="text-black text-[12px] font-black uppercase tracking-widest bg-uber-gray py-2 px-4 inline-block">{activeUpi.vpa}</p>
+                    <p className="text-muted text-[10px] font-bold uppercase tracking-widest mt-2">Account: {activeUpi.name}</p>
                   </div>
                   
-                  <div className="text-left space-y-4">
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted">Enter 12-Digit UTR / Transaction ID</label>
+                  <div className="text-left space-y-4 bg-uber-gray p-6">
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-black">Enter 12-Digit UTR / Transaction ID</label>
                     <input 
                       required
                       placeholder="e.g. 4123..."
                       maxLength={12}
-                      className="w-full h-14 border border-black px-6 font-bold outline-none focus:ring-2 focus:ring-black/5"
+                      className="w-full h-14 border-2 border-black px-6 font-bold outline-none focus:ring-0"
                       value={utr}
                       onChange={(e) => setUtr(e.target.value.replace(/[^0-9]/g, ''))}
                     />
-                    <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest">
-                      * Required for order dispatch
+                    <p className="text-[10px] font-bold text-red-600 uppercase tracking-widest">
+                      * DISCO Intelligence validates UTR within 60s
                     </p>
                   </div>
 
@@ -280,6 +327,10 @@ export default function CheckoutPage() {
                     </div>
                   )}
                   
+                  <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest text-muted">
+                    <span>Total Weight</span>
+                    <span className={isHeavy ? 'text-red-600 font-black' : 'text-black'}>{totalWeight.toFixed(1)} KG</span>
+                  </div>
                   <div className="flex justify-between items-end pt-4 border-t border-border">
                     <span className="font-black uppercase tracking-tighter text-[16px]">To Pay</span>
                     <span className="font-black text-[32px] leading-none">₹{totalPrice}</span>
