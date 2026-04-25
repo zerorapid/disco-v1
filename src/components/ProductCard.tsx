@@ -153,6 +153,7 @@ export default function ProductCard({ product }: ProductProps) {
                 onClick={handleAdd}
                 disabled={isAdding || product.stock <= 0 || (new Date().getHours() < 6 || new Date().getHours() >= 23)}
                 className={`absolute inset-0 w-full font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 active-scale ${
+                  isAdding ? 'bg-green-600 text-white border-2 border-green-600 scale-95' :
                   product.stock <= 0 
                     ? 'bg-uber-gray text-black/20 border-2 border-black/5 cursor-not-allowed' 
                     : (new Date().getHours() < 6 || new Date().getHours() >= 23)
@@ -166,7 +167,7 @@ export default function ProductCard({ product }: ProductProps) {
                   <span>STORE CLOSED</span>
                 ) : (
                   <>
-                    <span>{isAdding ? 'Sourcing...' : 'Add to Cart'}</span>
+                    <span>{isAdding ? 'ADDED!' : 'Add to Cart'}</span>
                     {!isAdding && <span className="material-symbols-outlined text-lg">add</span>}
                   </>
                 )}

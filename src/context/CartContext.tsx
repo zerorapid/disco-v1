@@ -62,7 +62,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('disco_cart', JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product: any) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
@@ -72,7 +71,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
       return [...prev, { ...product, quantity: 1 }];
     });
-    setIsCartOpen(true);
   };
 
   const removeFromCart = (productId: number) => {
