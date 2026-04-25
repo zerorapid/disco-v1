@@ -44,9 +44,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="bg-black text-white text-[9px] font-bold text-center py-1 uppercase tracking-widest z-[100] relative">
-        DISCO V2.1 Deployment Active • Permanent PIN System Live
-      </div>
       <Header />
       
       <main className="max-width pt-[124px] md:pt-24">
