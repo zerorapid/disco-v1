@@ -120,11 +120,11 @@ export default function AdminPage() {
 
         <nav className="flex-1 overflow-y-auto py-8">
           {[
-            { id: 'orders', label: 'Activity Pulse', icon: Activity, count: orders.length },
-            { id: 'inventory', label: 'Inventory Hub', icon: Package, count: products.length },
-            { id: 'customers', label: 'User dossiers', icon: Users, count: 'LOG' },
-            { id: 'analytics', label: 'Market Stats', icon: BarChart3, count: '₹' },
-            { id: 'alerts', label: 'Broadcasts', icon: Bell, count: '!' }
+            { id: 'orders', label: 'Live Orders', icon: Activity, count: orders.length },
+            { id: 'inventory', label: 'Product Catalog', icon: Package, count: products.length },
+            { id: 'customers', label: 'Customer Intelligence', icon: Users, count: 'LOG' },
+            { id: 'analytics', label: 'Sales Analytics', icon: BarChart3, count: '₹' },
+            { id: 'alerts', label: 'System Notifications', icon: Bell, count: '!' }
           ].map((tab) => (
             <button 
               key={tab.id}
@@ -231,11 +231,9 @@ export default function AdminPage() {
           <div className="mb-12 flex items-end justify-between">
             <div>
               <h2 className="text-[48px] font-black uppercase tracking-tighter text-black leading-none">{activeTab}</h2>
-              <p className="text-[13px] font-bold text-black/40 uppercase tracking-[0.3em] mt-4">Sector: Intelligence-Grid-{activeTab.substring(0,3).toUpperCase()}</p>
+              <p className="text-[13px] font-bold text-black/40 uppercase tracking-[0.3em] mt-4">Operations Control • Real-time Monitoring</p>
             </div>
             <div className="hidden md:flex gap-2">
-              <div className="h-10 w-28 border border-black/10 bg-white flex items-center justify-center text-[11px] font-black uppercase tracking-widest text-black/40">Filtered</div>
-              <div className="h-10 w-28 border border-black/10 bg-white flex items-center justify-center text-[11px] font-black uppercase tracking-widest text-black/40">Realtime</div>
             </div>
           </div>
 

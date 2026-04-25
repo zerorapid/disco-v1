@@ -107,7 +107,7 @@ export default function CustomerList({ searchQuery = '' }: CustomerListProps) {
               <div className="border-t border-black/5 bg-uber-gray/10 p-8 animate-in slide-in-from-top-2 duration-300">
                 <div className="flex justify-between items-center mb-8">
                   <h5 className="text-[11px] font-black uppercase tracking-[0.3em] text-black/40 flex items-center gap-2">
-                    <Calendar size={14} /> Intelligence Dossier
+                    <Calendar size={14} /> Customer Profile
                   </h5>
                   <div className="bg-black text-white px-4 py-1.5 text-[11px] font-black uppercase tracking-widest">
                     Live Session Active
@@ -137,10 +137,10 @@ export default function CustomerList({ searchQuery = '' }: CustomerListProps) {
                 
                 <div className="mt-8 flex gap-4">
                   <a href={`tel:${customer.phone}`} className="flex-1 h-14 bg-black text-white text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-3 active-scale">
-                    <Phone size={18} /> Initiate Voice Link
+                    <Phone size={18} /> Contact via Phone
                   </a>
                   <a href={`https://wa.me/${customer.phone.replace(/\D/g, '')}`} target="_blank" className="flex-1 h-14 bg-white border border-black/10 text-black text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-3 active-scale">
-                    <ShoppingBag size={18} /> WhatsApp Entity
+                    <ShoppingBag size={18} /> Send WhatsApp Message
                   </a>
                 </div>
               </div>

@@ -64,11 +64,11 @@ export default function OrderPulse({ searchQuery = '' }: OrderPulseProps) {
       
       {/* LEDGER HEADER */}
       <div className="grid grid-cols-[140px_1fr_1fr_140px_160px_140px] gap-4 px-6 py-4 bg-uber-gray/50 border-b border-black/10 text-[11px] font-black uppercase tracking-[0.2em] text-black/40">
-        <div>Pulse / ID</div>
-        <div>Customer / Entity</div>
-        <div>Manifest / Payload</div>
-        <div>Financials</div>
-        <div className="text-center">Logistics / Grid</div>
+        <div>Order Ref</div>
+        <div>Customer / Account</div>
+        <div>Line Items</div>
+        <div>Payment Status</div>
+        <div className="text-center">Logistics / Status</div>
         <div className="text-right">Actions</div>
       </div>
 
@@ -120,7 +120,7 @@ export default function OrderPulse({ searchQuery = '' }: OrderPulseProps) {
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-[10px] font-black text-black/20 uppercase tracking-widest">
                 <Box size={10} />
-                <span>{order.items?.length || 0} Units</span>
+                <span>Line Items</span>
               </div>
               <p className="text-[13px] font-bold leading-tight text-black/70 line-clamp-2">
                 {order.items?.map((it: any) => `${it.quantity || 1}x ${it.name}`).join(', ')}
