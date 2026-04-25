@@ -13,6 +13,7 @@ interface Product {
   weight: number;
   stock: number;
   image_url: string;
+  sourcing_cost: number;
 }
 
 export default function InventoryManager({ products: initialProducts, onUpdate }: { products: Product[], onUpdate: () => void }) {
@@ -28,7 +29,8 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
     discount_price: 0,
     weight: 0,
     stock: 0,
-    image_url: ''
+    image_url: '',
+    sourcing_cost: 0
   });
 
   const filteredProducts = filterDeals 
@@ -43,7 +45,7 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
     
     if (!error) {
       setShowAddForm(false);
-      setNewProduct({ name: '', category: 'Groceries', price: 0, discount_price: 0, weight: 0, stock: 0, image_url: '' });
+      setNewProduct({ name: '', category: 'Groceries', price: 0, discount_price: 0, weight: 0, stock: 0, image_url: '', sourcing_cost: 0 });
       onUpdate();
     } else {
       alert("Error adding product: " + error.message);
@@ -151,6 +153,10 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
               <label className="text-caption text-black/40">Initial Stock</label>
               <input required type="number" value={newProduct.stock || ''} onChange={e => setNewProduct({...newProduct, stock: parseInt(e.target.value) || 0})} className="w-full h-12 bg-uber-gray px-4 font-bold" />
             </div>
+            <div className="space-y-2">
+              <label className="text-caption text-black/40">Sourcing Cost (Internal)</label>
+              <input required type="number" value={newProduct.sourcing_cost || ''} onChange={e => setNewProduct({...newProduct, sourcing_cost: parseInt(e.target.value) || 0})} className="w-full h-12 bg-white border-2 border-black/10 px-4 font-black text-blue-600" />
+            </div>
           </div>
 
           <button 
@@ -203,6 +209,10 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
               <label className="text-caption text-black/40">DISCO Price (Set to 1 for Deals)</label>
               <input required type="number" value={editingProduct.discount_price || ''} onChange={e => setEditingProduct({...editingProduct, discount_price: parseInt(e.target.value) || 0})} className="w-full h-12 bg-uber-gray px-4 font-bold" />
             </div>
+            <div className="space-y-2">
+              <label className="text-caption text-black/40">Sourcing Cost (Protect your 1.5%)</label>
+              <input required type="number" value={editingProduct.sourcing_cost || ''} onChange={e => setEditingProduct({...editingProduct, sourcing_cost: parseInt(e.target.value) || 0})} className="w-full h-12 bg-white border-2 border-black/10 px-4 font-black text-blue-600" />
+            </div>
           </div>
 
           <div className="flex gap-4">
@@ -245,7 +255,7 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
               </div>
               <div className="flex-1 min-w-0">
                 <h4 className="text-body-primary truncate uppercase font-black">{p.name}</h4>
-                <p className="text-body-secondary text-[11px] font-bold">{p.weight}g / ml</p>
+                <p className="text-body-secondary text-[11px] font-bold">{p.weight}g / ml • Cost: ₹{p.sourcing_cost || 0}</p>
                 {p.discount_price === 1 && <span className="bg-green-600 text-white text-[8px] px-1 font-black uppercase">₹1 Deal</span>}
               </div>
             </div>

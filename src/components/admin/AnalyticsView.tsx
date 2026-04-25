@@ -14,13 +14,13 @@ export default function AnalyticsView() {
 
   async function fetchAnalytics() {
     const [prodRes, orderRes] = await Promise.all([
-      supabase.from('products').select('price, stock'),
+      supabase.from('products').select('price, stock, sourcing_cost'),
       supabase.from('orders').select('*')
     ]);
 
     if (!prodRes.error && !orderRes.error) {
-      // Stock Investment
-      const totalStockInvestment = prodRes.data.reduce((acc, curr) => acc + (curr.price * curr.stock), 0);
+      // Stock Investment (Actual cost of capital)
+      const totalStockInvestment = prodRes.data.reduce((acc, curr) => acc + ((curr.sourcing_cost || curr.price * 0.7) * curr.stock), 0);
       
       // Sales Breakdown
       let totalSales = 0;
