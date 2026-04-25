@@ -298,58 +298,74 @@ export default function AccountOverlay() {
             <div className="p-8 h-full bg-white flex flex-col items-center justify-center text-center">
               <div className="w-16 h-16 bg-black text-white rounded-2xl flex items-center justify-center font-black text-2xl mb-8">D</div>
               <h2 className="text-[24px] font-black text-black uppercase tracking-tighter mb-2">DISCO ID Login</h2>
-              <p className="text-[15px] font-bold text-black/40 mb-10">Verify your mobile via WhatsApp to continue</p>
-
-              {view === 'login-phone' ? (
-                <div className="w-full space-y-4">
+              <p className="text-[15px] font-bold text-black/40 mb-10">Verify your mobile via WhatsApp to continue</p>              {view === 'login-phone' ? (
+                <div className="w-full space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 border-r border-border pr-3 text-[16px] font-black">+91</div>
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 border-r border-border pr-3 text-[16px] font-black text-black/20">+91</div>
                     <input 
                       type="tel" 
                       maxLength={10} 
                       placeholder="Enter mobile number" 
                       value={phone} 
                       onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))} 
-                      className="w-full h-14 bg-white border-2 border-border rounded-xl pl-16 font-black text-[16px] outline-none focus:border-black" 
+                      className="w-full h-16 bg-white border-2 border-black/10 rounded-2xl pl-16 font-black text-[18px] outline-none focus:border-black transition-all" 
                     />
                   </div>
-                  <button onClick={handleContinue} className="w-full h-14 bg-black text-white rounded-xl font-black uppercase tracking-widest text-[12px] active-scale">Get My DISCO PIN</button>
+                  <button onClick={handleContinue} className="w-full h-16 bg-black text-white rounded-2xl font-black uppercase tracking-[0.1em] text-[13px] active-scale shadow-xl">
+                    Get My DISCO PIN
+                  </button>
                 </div>
               ) : (
-                <div className="w-full space-y-8">
-                  <div className="bg-black text-white p-6 rounded-2xl space-y-1 relative overflow-hidden">
-                    <div className="absolute right-[-10px] top-[-10px] opacity-10">
-                      <ShoppingBag size={80} />
+                <div className="w-full space-y-8 animate-in zoom-in-95 duration-500">
+                  {/* THE PERMANENT PIN CARD */}
+                  <div className="bg-black text-white p-8 rounded-[32px] space-y-2 relative overflow-hidden shadow-2xl border-4 border-white/10">
+                    <div className="absolute right-[-20px] top-[-20px] opacity-10 rotate-12">
+                      <ShoppingBag size={120} />
                     </div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Your Permanent DISCO PIN</p>
-                    <h3 className="text-[32px] font-black tracking-[0.5em] pl-4">{permanentPin}</h3>
-                    <p className="text-[11px] font-bold opacity-60">This PIN is unique to you. Save it for future logins.</p>
+                    <div className="relative z-10 text-left">
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Permanent DISCO PIN</p>
+                      <h3 className="text-[48px] font-black tracking-[0.4em] leading-tight text-green-500">{permanentPin}</h3>
+                      <p className="text-[12px] font-bold text-white/60">This PIN is unique to {phone}.</p>
+                    </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="flex justify-center gap-3">
-                      {otp.map((digit, i) => (
-                        <input 
-                          key={i} 
-                          ref={el => { otpRefs.current[i] = el; }}
-                          type="text" 
-                          maxLength={1} 
-                          value={digit}
-                          onChange={e => handleOtpChange(i, e.target.value)}
-                          onKeyDown={e => {
-                            if (e.key === 'Backspace' && !digit && i > 0) {
-                              otpRefs.current[i - 1]?.focus();
-                            }
-                          }}
-                          className="w-12 h-14 border-2 border-border rounded-xl text-center font-black text-xl outline-none focus:border-black bg-uber-gray/30" 
-                        />
-                      ))}
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <p className="text-[11px] font-black uppercase tracking-widest text-black/30">Enter PIN to Verify</p>
+                      <div className="flex justify-center gap-3">
+                        {otp.map((digit, i) => (
+                          <input 
+                            key={i} 
+                            ref={el => { otpRefs.current[i] = el; }}
+                            type="text" 
+                            maxLength={1} 
+                            value={digit}
+                            onChange={e => handleOtpChange(i, e.target.value)}
+                            onKeyDown={e => {
+                              if (e.key === 'Backspace' && !digit && i > 0) {
+                                otpRefs.current[i - 1]?.focus();
+                              }
+                            }}
+                            className="w-14 h-16 border-2 border-black/10 rounded-2xl text-center font-black text-2xl outline-none focus:border-black bg-white shadow-inner" 
+                          />
+                        ))}
+                      </div>
                     </div>
-                    <button onClick={handleVerify} className="w-full h-14 bg-black text-white rounded-xl font-black uppercase tracking-widest text-[12px] active-scale">Login to DISCO</button>
-                    <button onClick={() => setView('login-phone')} className="text-[11px] font-black text-black/20 uppercase hover:text-black">Change Number</button>
+                    
+                    <button 
+                      onClick={handleVerify} 
+                      className={`w-full h-16 rounded-2xl font-black uppercase tracking-widest text-[13px] transition-all active-scale ${otp.join('').length === 4 ? 'bg-green-700 text-white shadow-xl' : 'bg-black/5 text-black/20'}`}
+                      disabled={otp.join('').length !== 4}
+                    >
+                      Login to DISCO
+                    </button>
+                    
+                    <button onClick={() => { setView('login-phone'); setOtp(['','','','']); }} className="text-[11px] font-black text-black/20 uppercase hover:text-black border-b border-transparent hover:border-black/10 pb-1">
+                      Wrong Number? Change it
+                    </button>
                   </div>
                 </div>
-              )}
+              )})}
             </div>
           )}
         </div>
