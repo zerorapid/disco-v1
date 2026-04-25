@@ -20,6 +20,8 @@ export default function Header({ onSearch }: HeaderProps) {
   const { user, setIsAccountOpen, addresses } = useAccount();
   const { isSearchOpen, setIsSearchOpen, searchQuery, setSearchQuery, setIsNotificationsOpen, selectedAddress, setIsLocationOpen } = useUI();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -36,11 +38,28 @@ export default function Header({ onSearch }: HeaderProps) {
     }
   }, [isSearchOpen]);
 
-  // ACTIVITY LOGGING
+  // LIVE SEARCH FETCH
   useEffect(() => {
-    const logSearch = async () => {
-      if (searchQuery.length < 3) return;
-      const timer = setTimeout(async () => {
+    const performSearch = async () => {
+      if (searchQuery.trim().length < 2) {
+        setSearchResults([]);
+        return;
+      }
+      
+      setIsSearching(true);
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .or(`name.ilike.%${searchQuery}%,category.ilike.%${searchQuery}%`)
+        .limit(6);
+      
+      if (!error && data) {
+        setSearchResults(data);
+      }
+      setIsSearching(false);
+
+      // ACTIVITY LOGGING
+      if (searchQuery.length >= 3) {
         try {
           await supabase.from('search_logs').insert({
             query: searchQuery,
@@ -54,10 +73,11 @@ export default function Header({ onSearch }: HeaderProps) {
             });
           }
         } catch (err) {}
-      }, 1000);
-      return () => clearTimeout(timer);
+      }
     };
-    logSearch();
+
+    const timer = setTimeout(performSearch, 300);
+    return () => clearTimeout(timer);
   }, [searchQuery, user]);
 
   const activeAddress = selectedAddress || { title: "DISCO Warehouse", area: "Industrial Area" };
@@ -162,15 +182,65 @@ export default function Header({ onSearch }: HeaderProps) {
                   <X size={24} />
                 </button>
 
-                {/* Search Results would render here */}
-                {searchQuery && (
-                  <div className="p-4">
-                    <p className="text-[10px] font-black uppercase text-black/30 mb-2">Results for "{searchQuery}"</p>
-                    <div className="space-y-1">
-                      <p className="text-[14px] font-bold text-black/20 italic">Catalog sync in progress...</p>
+                {/* Search Results */}
+                <div className="max-h-[70vh] overflow-y-auto no-scrollbar bg-white">
+                  {isSearching ? (
+                    <div className="p-12 text-center">
+                      <div className="w-8 h-8 border-4 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                      <p className="text-[10px] font-black uppercase tracking-widest text-black/20">Scanning Catalog...</p>
                     </div>
-                  </div>
-                )}
+                  ) : searchQuery && searchResults.length > 0 ? (
+                    <div className="p-4 space-y-4">
+                      <p className="text-[10px] font-black uppercase text-black/30 tracking-widest">Available Items</p>
+                      <div className="grid grid-cols-1 gap-2">
+                        {searchResults.map((product) => (
+                          <button
+                            key={product.id}
+                            onClick={() => {
+                              setIsSearchOpen(false);
+                              window.location.href = `/product/${product.id}`;
+                            }}
+                            className="flex items-center gap-4 p-3 hover:bg-uber-gray transition-colors border border-black/5 active:scale-[0.98]"
+                          >
+                            <div className="w-12 h-12 bg-uber-gray flex-shrink-0">
+                              <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="flex-1 text-left">
+                              <h5 className="text-[14px] font-black text-black leading-tight">{product.name}</h5>
+                              <p className="text-[11px] font-bold text-black/40 uppercase">{product.category}</p>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-[15px] font-black text-black">₹{product.price}</span>
+                              {product.original_price > product.price && (
+                                <p className="text-[10px] font-bold text-red-500 line-through">₹{product.original_price}</p>
+                              )}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : searchQuery && !isSearching ? (
+                    <div className="p-12 text-center">
+                      <Search size={32} className="mx-auto text-black/10 mb-4" />
+                      <p className="text-[12px] font-bold text-black/40 uppercase">No products found for "{searchQuery}"</p>
+                    </div>
+                  ) : (
+                    <div className="p-8">
+                      <p className="text-[10px] font-black uppercase text-black/20 tracking-[0.2em] mb-4">Popular Categories</p>
+                      <div className="flex flex-wrap gap-2">
+                        {['Milk', 'Bread', 'Eggs', 'Beverages', 'Loot'].map(cat => (
+                          <button 
+                            key={cat}
+                            onClick={() => setSearchQuery(cat)}
+                            className="px-4 py-2 bg-uber-gray text-[12px] font-black uppercase tracking-tight hover:bg-black hover:text-white transition-all"
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
