@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
-import { MapPin, Phone, CheckCircle2, MessageSquare, Truck, Package, Zap } from 'lucide-react';
+import { MapPin, Phone, CheckCircle2, MessageSquare, Truck, Package, Zap, Clock } from 'lucide-react';
 
 export default function OrderPulse() {
   const [orders, setOrders] = useState<any[]>([]);
