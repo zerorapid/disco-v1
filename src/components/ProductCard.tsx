@@ -29,12 +29,26 @@ export default function ProductCard({ product }: ProductProps) {
     return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
 
-  const handleAdd = (e: React.MouseEvent) => {
+  const handleAdd = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isAdding) return;
     
     setIsAdding(true);
     addToCart(product);
+
+    // LOG ACTIVITY
+    const userJson = localStorage.getItem('disco_user');
+    if (userJson) {
+      try {
+        const user = JSON.parse(userJson);
+        const { supabase } = await import('@/lib/supabase');
+        await supabase.from('user_activity').insert({
+          customer_phone: user.phone,
+          action: 'CART_ADD',
+          details: { product_id: product.id, name: product.name }
+        });
+      } catch (err) {}
+    }
     
     // Tactic 44: Double-Tap Protection
     setTimeout(() => setIsAdding(false), 500);

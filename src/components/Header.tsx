@@ -35,6 +35,30 @@ export default function Header({ onSearch }: HeaderProps) {
     }
   }, [isSearchOpen]);
 
+  // ACTIVITY LOGGING
+  useEffect(() => {
+    const logSearch = async () => {
+      if (searchQuery.length < 3) return;
+      const timer = setTimeout(async () => {
+        try {
+          await supabase.from('search_logs').insert({
+            query: searchQuery,
+            customer_phone: user?.phone || null
+          });
+          if (user?.phone) {
+            await supabase.from('user_activity').insert({
+              customer_phone: user.phone,
+              action: 'SEARCH',
+              details: { query: searchQuery }
+            });
+          }
+        } catch (err) {}
+      }, 1000);
+      return () => clearTimeout(timer);
+    };
+    logSearch();
+  }, [searchQuery, user]);
+
   const activeAddress = selectedAddress || { title: "DISCO Warehouse", area: "Industrial Area" };
 
   if (isAdmin) {

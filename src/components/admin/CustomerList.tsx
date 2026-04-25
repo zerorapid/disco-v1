@@ -8,46 +8,42 @@ export default function CustomerList() {
   const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedPhone, setExpandedPhone] = useState<string | null>(null);
+  const [activity, setActivity] = useState<any[]>([]);
 
   useEffect(() => {
     fetchCustomers();
   }, []);
 
+  async function fetchActivity(phone: string) {
+    setActivity([]);
+    const { data } = await supabase
+      .from('user_activity')
+      .select('*')
+      .eq('customer_phone', phone)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    if (data) setActivity(data);
+  }
+
   async function fetchCustomers() {
     const { data, error } = await supabase
-      .from('orders')
-      .select('customer_name, customer_phone, total_amount, created_at')
-      .order('created_at', { ascending: false });
+      .from('profiles')
+      .select('*')
+      .order('last_active', { ascending: false });
 
     if (!error && data) {
-      const customerMap: any = {};
-      
-      data.forEach((order: any) => {
-        const phone = order.customer_phone || 'N/A';
-        if (!customerMap[phone]) {
-          customerMap[phone] = {
-            name: order.customer_name || 'Guest',
-            phone: phone,
-            total_orders: 0,
-            total_spend: 0,
-            last_order: order.created_at
-          };
-        }
-        customerMap[phone].total_orders += 1;
-        customerMap[phone].total_spend += order.total_amount;
-      });
-
-      setCustomers(Object.values(customerMap));
+      setCustomers(data);
     }
     setLoading(false);
   }
 
   const filteredCustomers = customers.filter(c => 
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    c.phone.includes(searchQuery)
+    (c.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (c.phone || '').includes(searchQuery)
   );
 
-  if (loading) return <div className="h-64 flex items-center justify-center text-caption animate-pulse">Scanning Order History...</div>;
+  if (loading) return <div className="h-64 flex items-center justify-center text-caption animate-pulse">Scanning Intelligence Hub...</div>;
 
   return (
     <div className="space-y-6">
@@ -62,54 +58,93 @@ export default function CustomerList() {
         <User size={20} className="absolute left-4 top-4 text-black/20" />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-4">
         {filteredCustomers.map((customer, idx) => (
-          <div key={idx} className="bg-white border-thin p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-black transition-all">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-uber-gray flex items-center justify-center rounded-full text-black/40">
-                <User size={24} />
+          <div key={idx} className={`bg-white border-thin overflow-hidden transition-all duration-300 ${expandedPhone === customer.phone ? 'border-black shadow-xl ring-1 ring-black' : 'hover:border-black'}`}>
+            <div 
+              className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer"
+              onClick={() => {
+                if (expandedPhone === customer.phone) {
+                  setExpandedPhone(null);
+                } else {
+                  setExpandedPhone(customer.phone);
+                  fetchActivity(customer.phone);
+                }
+              }}
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-uber-gray flex items-center justify-center rounded-full text-black/40">
+                  <User size={24} />
+                </div>
+                <div>
+                  <h4 className="text-body-primary uppercase font-black">{customer.name || 'Anonymous User'}</h4>
+                  <div className="flex items-center gap-2 text-body-secondary text-[11px] font-bold">
+                    <Phone size={12} />
+                    {customer.phone}
+                  </div>
+                </div>
               </div>
-              <div>
-                <h4 className="text-body-primary uppercase font-black">{customer.name}</h4>
-                <div className="flex items-center gap-2 text-body-secondary text-[11px] font-bold">
-                  <Phone size={12} />
-                  {customer.phone}
+
+              <div className="grid grid-cols-3 gap-8 md:gap-12">
+                <div className="text-center md:text-left">
+                  <p className="text-[10px] text-black/20 font-black uppercase tracking-widest">Orders</p>
+                  <p className="text-heading-3">{customer.total_orders}</p>
+                </div>
+                <div className="text-center md:text-left">
+                  <p className="text-[10px] text-black/20 font-black uppercase tracking-widest">LTV</p>
+                  <p className="text-heading-3">₹{customer.total_spend}</p>
+                </div>
+                <div className="text-center md:text-left">
+                  <p className="text-[10px] text-black/20 font-black uppercase tracking-widest">Score</p>
+                  <p className="text-heading-3 text-green-600">{Math.min(100, (customer.total_orders * 5) + (customer.total_spend / 100)).toFixed(0)}</p>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <div className={`w-10 h-10 border-thin flex items-center justify-center transition-transform ${expandedPhone === customer.phone ? 'rotate-180' : ''}`}>
+                  <span className="material-symbols-outlined">expand_more</span>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-8 md:gap-12">
-              <div className="text-center md:text-left">
-                <p className="text-[10px] text-black/20 font-black uppercase tracking-widest">Orders</p>
-                <p className="text-heading-3">{customer.total_orders}</p>
+            {/* EXPANDED ACTIVITY FEED */}
+            {expandedPhone === customer.phone && (
+              <div className="border-t border-uber-gray bg-uber-gray/30 p-6 animate-in slide-in-from-top-2 duration-300">
+                <h5 className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-4 flex items-center gap-2">
+                  <Calendar size={12} /> Intelligence Dossier (Recent Activity)
+                </h5>
+                <div className="space-y-2">
+                  {activity.length > 0 ? activity.map((act, i) => (
+                    <div key={i} className="bg-white p-3 border-thin flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className={`text-[8px] font-black px-1.5 py-0.5 uppercase ${
+                          act.action === 'SEARCH' ? 'bg-blue-100 text-blue-700' :
+                          act.action === 'CART_ADD' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'
+                        }`}>
+                          {act.action}
+                        </span>
+                        <p className="text-[11px] font-bold text-black">
+                          {act.action === 'SEARCH' ? `Searched for "${act.details.query}"` :
+                           act.action === 'CART_ADD' ? `Added ${act.details.name} to cart` : 'User Action'}
+                        </p>
+                      </div>
+                      <span className="text-[9px] font-black text-black/20">{new Date(act.created_at).toLocaleTimeString()}</span>
+                    </div>
+                  )) : (
+                    <div className="py-8 text-center text-caption text-black/10 italic">No recent activity detected</div>
+                  )}
+                </div>
+                
+                <div className="mt-6 flex gap-3">
+                  <a href={`tel:${customer.phone}`} className="flex-1 h-12 bg-black text-white text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 active-scale">
+                    <Phone size={14} /> Call Customer
+                  </a>
+                  <a href={`https://wa.me/${customer.phone}`} target="_blank" className="flex-1 h-12 bg-white border-thin text-black text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 active-scale">
+                    <ShoppingBag size={14} /> WhatsApp Pulse
+                  </a>
+                </div>
               </div>
-              <div className="text-center md:text-left">
-                <p className="text-[10px] text-black/20 font-black uppercase tracking-widest">Spend</p>
-                <p className="text-heading-3">₹{customer.total_spend}</p>
-              </div>
-              <div className="text-center md:text-left hidden lg:block">
-                <p className="text-[10px] text-black/20 font-black uppercase tracking-widest">Latest</p>
-                <p className="text-body-secondary text-[11px] font-bold mt-2">
-                  {new Date(customer.last_order).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <a 
-                href={`tel:${customer.phone}`}
-                className="w-10 h-10 border-thin flex items-center justify-center hover:bg-uber-gray active-scale"
-              >
-                <Phone size={18} />
-              </a>
-              <a 
-                href={`https://wa.me/${customer.phone}`}
-                target="_blank"
-                className="w-10 h-10 border-thin flex items-center justify-center hover:bg-uber-gray active-scale"
-              >
-                <ShoppingBag size={18} />
-              </a>
-            </div>
+            )}
           </div>
         ))}
 
