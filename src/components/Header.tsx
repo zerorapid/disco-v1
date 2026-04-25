@@ -211,7 +211,7 @@ export default function Header({ onSearch }: HeaderProps) {
             {/* Cart Button - Tactic 41, 51 */}
             <button 
               onClick={() => setIsCartOpen(true)}
-              className="hidden md:flex h-10 md:h-12 bg-black text-white px-3 md:px-5 items-center gap-3 active-scale shadow-lg shadow-black/10"
+              className="h-10 md:h-12 bg-black text-white px-3 md:px-5 flex items-center gap-3 active-scale shadow-lg shadow-black/10"
             >
               <ShoppingBag size={20} strokeWidth={2.5} />
               {totalItems > 0 && (

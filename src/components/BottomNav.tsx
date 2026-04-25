@@ -47,19 +47,12 @@ export default function BottomNav() {
         <span className="text-[10px] font-black uppercase tracking-widest">₹1 Deals</span>
       </button>
 
-      {/* CART - CENTER CTA */}
+      {/* SUPPORT */}
       <button 
-        onClick={() => setIsCartOpen(true)}
-        className="relative -top-6 flex flex-col items-center justify-center gap-1 active-scale group"
+        className={`${navItemClass} ${pathname === '/support' ? 'text-black' : 'text-black/30'}`}
       >
-        <div className="w-16 h-16 bg-black text-white flex items-center justify-center shadow-2xl shadow-black/40 group-active:scale-90 transition-transform">
-          <ShoppingBag size={28} strokeWidth={2.5} />
-          {totalItems > 0 && (
-            <div className="absolute -top-1 -right-1 bg-green-500 text-black text-[11px] font-black w-6 h-6 flex items-center justify-center ring-4 ring-white">
-              {totalItems}
-            </div>
-          )}
-        </div>
+        <MessageCircleQuestion size={24} strokeWidth={2} />
+        <span className="text-[10px] font-black uppercase tracking-widest">Support</span>
       </button>
 
       {/* HELP / SUPPORT - Removing Account as requested (duplicate) */}
