@@ -59,7 +59,14 @@ export default function BottomNav() {
 
       {/* 3. SEARCH */}
       <button 
-        onClick={() => setIsSearchOpen(true)}
+        onClick={() => {
+          setIsSearchOpen(true);
+          // Force focus with a slight delay for mobile keyboard stability
+          setTimeout(() => {
+            const input = document.getElementById('global-search-input');
+            if (input) input.focus();
+          }, 100);
+        }}
         className={`${navItemClass} text-black/30 hover:text-black`}
       >
         <Search 

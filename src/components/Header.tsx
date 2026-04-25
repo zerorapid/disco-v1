@@ -126,20 +126,21 @@ export default function Header({ onSearch }: HeaderProps) {
 
         {/* CENTER: SEARCH - Tactic 35, 37, 50 */}
         <div 
-          className={`transition-all duration-500 relative ${
-            isSearchOpen ? 'flex-1' : 'hidden md:block w-10 md:w-64 lg:w-96'
+          className={`transition-all duration-500 relative z-[100] ${
+            isSearchOpen ? 'flex-1 translate-x-0 opacity-100' : 'hidden md:block w-10 md:w-64 lg:w-96'
           }`}
         >
           <div className={`relative flex items-center w-full`}>
             <input
               ref={searchInputRef}
               type="text"
+              id="global-search-input"
               placeholder="Search Milk, Eggs, Bread..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setIsSearchOpen(true)}
-              className={`w-full bg-uber-gray h-10 md:h-12 px-10 text-sm font-bold placeholder:text-black/20 transition-all ${
-                isSearchOpen ? 'border-2 border-black bg-white shadow-xl' : 'border border-transparent'
+              className={`w-full bg-uber-gray h-12 md:h-12 px-10 text-[16px] md:text-sm font-bold placeholder:text-black/20 transition-all ${
+                isSearchOpen ? 'border-2 border-black bg-white shadow-2xl' : 'border border-transparent'
               }`}
             />
             <Search 
@@ -154,9 +155,9 @@ export default function Header({ onSearch }: HeaderProps) {
                   setIsSearchOpen(false);
                   setSearchQuery('');
                 }}
-                className="absolute right-3 w-8 h-8 flex items-center justify-center hover:bg-uber-gray active-scale"
+                className="absolute right-3 w-10 h-10 flex items-center justify-center hover:bg-uber-gray active:scale-90"
               >
-                <X size={20} />
+                <X size={24} />
               </button>
             )}
           </div>
