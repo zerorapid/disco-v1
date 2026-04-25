@@ -21,10 +21,11 @@ export default function AdminPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [stats, setStats] = useState({ revenue: 0, orders: 0 });
   const [loading, setLoading] = useState(true);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'orders' | 'inventory' | 'customers' | 'analytics' | 'alerts' | 'spy' | 'support'>('orders');
   const [searchQuery, setSearchQuery] = useState('');
 
+  useEffect(() => {
+    const auth = sessionStorage.getItem('disco_admin_auth');
     if (auth === 'true') {
       setIsAuthorized(true);
       fetchData();
@@ -190,15 +191,6 @@ export default function AdminPage() {
             <ExternalLink size={16} />
             View Storefront
           </a>
-        <div className="p-6 border-t border-black/10 space-y-4">
-          <a 
-            href="/" 
-            target="_blank"
-            className="flex items-center gap-3 px-4 py-3 text-[12px] font-black uppercase tracking-widest text-black/60 hover:text-black hover:bg-black/5 transition-all"
-          >
-            <ExternalLink size={16} />
-            View Storefront
-          </a>
           <button 
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 text-[12px] font-black uppercase tracking-widest text-red-600 hover:bg-red-50 transition-all"
@@ -206,7 +198,6 @@ export default function AdminPage() {
             <LogOut size={16} />
             Terminate Session
           </button>
-        </div>
         </div>
       </div>
 
