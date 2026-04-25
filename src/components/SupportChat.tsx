@@ -45,10 +45,15 @@ export default function SupportChat() {
   };
 
   const handleSend = async () => {
-    if (!message.trim() || !user?.phone) return;
+    if (!message.trim()) return;
+    const phone = user?.phone || localStorage.getItem('disco_guest_phone');
+    if (!phone) {
+      alert("Please enter your phone number to start chat");
+      return;
+    }
     setLoading(true);
     const { error } = await supabase.from('support_messages').insert({
-      customer_phone: user.phone,
+      customer_phone: phone,
       sender: 'customer',
       message: message.trim()
     });
@@ -56,10 +61,11 @@ export default function SupportChat() {
     setLoading(false);
   };
 
-  if (!user) return null;
+  const [guestPhone, setGuestPhone] = useState('');
+  const activePhone = user?.phone || localStorage.getItem('disco_guest_phone');
 
   return (
-    <div className="fixed bottom-24 right-6 z-[100] md:bottom-10 md:right-10">
+    <div className="fixed bottom-28 right-6 z-[999] md:bottom-10 md:right-10">
       {/* CHAT BUBBLE */}
       {!isOpen && (
         <button 
@@ -93,7 +99,37 @@ export default function SupportChat() {
             ref={scrollRef}
             className="flex-1 overflow-y-auto p-4 space-y-4 bg-uber-gray/30 no-scrollbar"
           >
-            {messages.length === 0 && (
+            {!activePhone ? (
+              <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-6">
+                <div className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center">
+                  <User size={32} />
+                </div>
+                <div className="space-y-4">
+                  <h4 className="text-[14px] font-black uppercase tracking-tighter text-black">Identify Yourself</h4>
+                  <p className="text-[10px] font-bold text-black/40 uppercase tracking-widest leading-relaxed">
+                    Enter your phone number so our dispatcher can reach you back.
+                  </p>
+                  <input 
+                    type="tel"
+                    placeholder="Phone Number"
+                    className="w-full h-12 bg-white border border-black/10 px-4 text-center font-black tracking-widest outline-none focus:border-black transition-all"
+                    value={guestPhone}
+                    onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, ''))}
+                  />
+                  <button 
+                    onClick={() => {
+                      if (guestPhone.length === 10) {
+                        localStorage.setItem('disco_guest_phone', guestPhone);
+                        fetchMessages();
+                      }
+                    }}
+                    className="w-full h-12 bg-black text-white text-[11px] font-black uppercase tracking-widest"
+                  >
+                    Start Communication
+                  </button>
+                </div>
+              </div>
+            ) : messages.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-4">
                 <div className="w-16 h-16 bg-black/5 rounded-full flex items-center justify-center text-black/10">
                   <MessageCircle size={32} />
@@ -102,21 +138,22 @@ export default function SupportChat() {
                   How can we help you today? Ask about your order or product availability.
                 </p>
               </div>
-            )}
-            {messages.map((msg, i) => (
-              <div 
-                key={i}
-                className={`flex ${msg.sender === 'customer' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div className={`max-w-[80%] p-3 text-[13px] font-bold ${
-                  msg.sender === 'customer' 
-                    ? 'bg-black text-white' 
-                    : 'bg-white border border-black/10 text-black shadow-sm'
-                }`}>
-                  {msg.message}
+            ) : (
+              messages.map((msg, i) => (
+                <div 
+                  key={i}
+                  className={`flex ${msg.sender === 'customer' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div className={`max-w-[80%] p-3 text-[13px] font-bold ${
+                    msg.sender === 'customer' 
+                      ? 'bg-black text-white' 
+                      : 'bg-white border border-black/10 text-black shadow-sm'
+                  }`}>
+                    {msg.message}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           {/* INPUT */}
