@@ -190,8 +190,8 @@ export default function CheckoutPage() {
                   <div className="bg-red-600 text-white p-6 rounded-none mb-8 animate-pulse flex items-center gap-4">
                     <div className="bg-white text-red-600 w-12 h-12 flex items-center justify-center font-black text-2xl">!</div>
                     <div>
-                      <p className="font-black uppercase tracking-widest text-[14px]">Heavy Load Alert ({totalWeight.toFixed(1)}kg)</p>
-                      <p className="text-[10px] font-bold uppercase opacity-80">This order requires a specialized Borzo Truck instead of a Bike.</p>
+                      <p className="font-black uppercase tracking-widest text-[14px]">Payload Overload ({totalWeight.toFixed(1)}kg)</p>
+                      <p className="text-[10px] font-bold uppercase opacity-80">Maximum 15kg allowed per ZAP delivery. Please remove some items.</p>
                     </div>
                   </div>
                 )}
@@ -206,13 +206,13 @@ export default function CheckoutPage() {
                       className="w-full h-14 border border-border px-6 font-bold bg-uber-gray outline-none transition-colors"
                     />
                   </div>
-                  <button 
-                    onClick={() => setStep('payment')}
-                    disabled={selectedAddrIdx === -1}
-                    className="w-full bg-black text-white h-16 font-black uppercase tracking-widest hover:bg-gray-900 transition-colors disabled:opacity-20"
-                  >
-                    Proceed to Payment
-                  </button>
+                    <button 
+                      onClick={() => setStep('payment')}
+                      disabled={selectedAddrIdx === -1 || isHeavy}
+                      className={`w-full h-16 font-black uppercase tracking-widest transition-colors disabled:opacity-30 ${isHeavy ? 'bg-red-600 text-white cursor-not-allowed' : 'bg-black text-white hover:bg-gray-900'}`}
+                    >
+                      {isHeavy ? 'Weight Limit Exceeded' : 'Proceed to Payment'}
+                    </button>
                 </div>
               </div>
             )}
@@ -247,6 +247,15 @@ export default function CheckoutPage() {
                     <p className="text-[10px] font-bold text-red-600 uppercase tracking-widest">
                       * DISCO Intelligence validates UTR within 60s
                     </p>
+                    <div className="pt-2">
+                      <a 
+                        href={`https://wa.me/919441276604?text=My%20payment%20is%20stuck%20for%20order%20of%20₹${totalPrice}.%20UTR:%20`} 
+                        target="_blank"
+                        className="text-[11px] font-black text-black underline decoration-black/20 hover:decoration-black uppercase tracking-widest"
+                      >
+                        Amount debited but order not placed? Tap for Help
+                      </a>
+                    </div>
                   </div>
 
                   <button 

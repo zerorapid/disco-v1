@@ -13,6 +13,7 @@ export default function OrderPulse({ searchQuery = '' }: OrderPulseProps) {
   const [activeMenu, setActiveMenu] = useState<number | null>(null);
   const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('All');
+  const [manualUtr, setManualUtr] = useState<string>('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -66,7 +67,7 @@ export default function OrderPulse({ searchQuery = '' }: OrderPulseProps) {
       
       {/* STATUS COMMAND RIBBON */}
       <div className="flex flex-wrap gap-2 mb-6">
-        {['All', 'Packing', 'Shipped', 'Delivered', 'Cancelled'].map((status) => (
+        {['All', 'Packing', 'Shipped', 'Delivered', 'Cancelled', 'Issue'].map((status) => (
           <button
             key={status}
             onClick={() => setStatusFilter(status)}
@@ -104,7 +105,8 @@ export default function OrderPulse({ searchQuery = '' }: OrderPulseProps) {
                   <div className={`w-2 h-2 rounded-full ${
                     order.status === 'Packing' ? 'bg-orange-500' : 
                     order.status === 'Shipped' ? 'bg-blue-500' : 
-                    order.status === 'Cancelled' ? 'bg-red-500' : 'bg-green-500'
+                    order.status === 'Cancelled' ? 'bg-red-500' : 
+                    order.status === 'Issue' ? 'bg-yellow-400' : 'bg-green-500'
                   } animate-pulse shadow-[0_0_8px_rgba(0,0,0,0.1)]`} />
                   <span className="text-[12px] font-black text-black tracking-tighter">#{order.id.toString().slice(-4)}</span>
                 </div>
@@ -166,6 +168,7 @@ export default function OrderPulse({ searchQuery = '' }: OrderPulseProps) {
                   order.status === 'Packing' ? 'border-orange-200 bg-orange-50 text-orange-700' : 
                   order.status === 'Shipped' ? 'border-blue-200 bg-blue-50 text-blue-700' : 
                   order.status === 'Cancelled' ? 'border-red-200 bg-red-50 text-red-700' :
+                  order.status === 'Issue' ? 'border-yellow-400 bg-yellow-50 text-yellow-800' :
                   'border-green-200 bg-green-50 text-green-700'
                 }`}>
                   {order.status}
@@ -216,6 +219,16 @@ export default function OrderPulse({ searchQuery = '' }: OrderPulseProps) {
                       </button>
                       <button 
                         onClick={() => {
+                          updateStatus(order.id, 'Issue');
+                          setActiveMenu(null);
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-yellow-600 hover:bg-yellow-600 hover:text-white transition-all border-b border-black/5"
+                      >
+                        <Phone size={14} />
+                        Flag Unresponsive
+                      </button>
+                      <button 
+                        onClick={() => {
                           updateStatus(order.id, 'Cancelled');
                           setActiveMenu(null);
                         }}
@@ -256,6 +269,34 @@ export default function OrderPulse({ searchQuery = '' }: OrderPulseProps) {
                         <span className="text-[11px] font-black uppercase">Final Settlement</span>
                         <span className="text-[18px] font-black">₹{order.total_amount}</span>
                       </div>
+                      
+                      {!order.utr && (
+                        <div className="pt-4 space-y-3">
+                          <label className="block text-[9px] font-black uppercase tracking-widest text-black/40">Manual Payment Verify</label>
+                          <div className="flex gap-2">
+                            <input 
+                              type="text"
+                              placeholder="Enter UTR..."
+                              className="flex-1 h-10 border border-black px-3 text-[12px] font-bold outline-none"
+                              value={manualUtr}
+                              onChange={(e) => setManualUtr(e.target.value)}
+                            />
+                            <button 
+                              onClick={async () => {
+                                if (!manualUtr) return;
+                                const { error } = await supabase.from('orders').update({ utr: manualUtr, status: 'Packing' }).eq('id', order.id);
+                                if (!error) {
+                                  setManualUtr('');
+                                  setExpandedOrder(null);
+                                }
+                              }}
+                              className="bg-black text-white px-4 text-[9px] font-black uppercase tracking-widest"
+                            >
+                              Verify
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 

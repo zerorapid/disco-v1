@@ -122,8 +122,13 @@ export default function ProductCard({ product }: ProductProps) {
                 </button>
                 <span className="flex-1 text-center text-base">{cartItem.quantity}</span>
                 <button 
-                  onClick={(e) => { e.stopPropagation(); updateQuantity(product.id, 1); }}
-                  className="w-14 h-full hover:bg-white/10 transition-colors flex items-center justify-center border-l border-white/10 active-scale"
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    if (cartItem.quantity >= 5) return;
+                    updateQuantity(product.id, 1); 
+                  }}
+                  disabled={cartItem.quantity >= 5}
+                  className={`w-14 h-full hover:bg-white/10 transition-colors flex items-center justify-center border-l border-white/10 active-scale ${cartItem.quantity >= 5 ? 'opacity-20 cursor-not-allowed' : ''}`}
                   aria-label="Increase quantity"
                 >
                   <span className="material-symbols-outlined text-xl">add</span>
