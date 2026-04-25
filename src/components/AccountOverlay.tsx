@@ -17,7 +17,14 @@ export default function AccountOverlay() {
   const [otp, setOtp] = useState(['', '', '', '']);
   const [permanentPin, setPermanentPin] = useState('');
   const [orders, setOrders] = useState<any[]>([]);
+  const [mounted, setMounted] = useState(false);
+  const [newAddr, setNewAddr] = useState({ type: 'Home', flat: '', floor: '', landmark: '' });
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
   
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const BIZ_WA = "919441276604";
 
   // Deterministic PIN Generator (Static for each number)
@@ -364,7 +371,6 @@ export default function AccountOverlay() {
                   </div>
                 </div>
               )}
-            </div>
             </div>
           )}
         </div>

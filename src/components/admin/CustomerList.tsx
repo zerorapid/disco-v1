@@ -47,6 +47,11 @@ export default function CustomerList() {
     return pin.toString().padStart(4, '0');
   };
 
+  const filteredCustomers = customers.filter(c => 
+    (c.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (c.phone || '').includes(searchQuery)
+  );
+
   if (loading) return <div className="h-64 flex items-center justify-center text-caption animate-pulse">Scanning Intelligence Hub...</div>;
 
   return (

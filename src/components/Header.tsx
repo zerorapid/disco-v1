@@ -6,6 +6,7 @@ import { useCart } from '@/context/CartContext';
 import { useAccount } from '@/context/AccountContext';
 import { useUI } from '@/context/UIContext';
 import { ShoppingBag, Search, User, X, MapPin, Zap, Bell, ShieldCheck } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
