@@ -25,6 +25,16 @@ export default function AccountOverlay() {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (isAccountOpen && !user) {
+      setView('login-phone');
+      setOtp(['', '', '', '']);
+    }
+    if (user && isAccountOpen) {
+      setView('dashboard');
+    }
+  }, [isAccountOpen, user]);
+
   const BIZ_WA = "919441276604";
 
   // Deterministic PIN Generator (Highly Unique for every digit change)
