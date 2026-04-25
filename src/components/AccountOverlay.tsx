@@ -80,12 +80,16 @@ export default function AccountOverlay() {
   };
 
   const handleOtpChange = (index: number, value: string) => {
-    if (value.length > 1) return;
+    // Strictly numbers only
+    const numericValue = value.replace(/\D/g, '');
+    if (!numericValue && value !== '') return;
+    
+    if (numericValue.length > 1) return;
     const newOtp = [...otp];
-    newOtp[index] = value;
+    newOtp[index] = numericValue;
     setOtp(newOtp);
     
-    if (value && index < 3) {
+    if (numericValue && index < 3) {
       otpRefs.current[index + 1]?.focus();
     }
   };
@@ -329,7 +333,7 @@ export default function AccountOverlay() {
             </div>
           ) : (
             /* LOGIN FLOW */
-            <div className="p-8 h-full bg-white flex flex-col items-center justify-center text-center animate-in fade-in duration-500">
+            <div className="p-8 h-full bg-white flex flex-col items-center justify-center text-center">
               <div className="w-20 h-20 bg-black text-white rounded-[28px] flex items-center justify-center font-black text-4xl mb-6 shadow-2xl">D</div>
               <h2 className="text-[28px] font-black text-black uppercase tracking-tighter mb-1">WELCOME TO DISCO</h2>
               <p className="text-[14px] font-bold text-black/30 mb-10">Your personal neighborhood store</p>
@@ -341,6 +345,7 @@ export default function AccountOverlay() {
                     <input 
                       type="tel" 
                       maxLength={10} 
+                      inputMode="numeric"
                       placeholder="Enter mobile number" 
                       value={phone} 
                       onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))} 
@@ -370,6 +375,8 @@ export default function AccountOverlay() {
                             key={i} 
                             ref={el => { otpRefs.current[i] = el; }}
                             type="text" 
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             maxLength={1} 
                             value={digit}
                             onChange={e => handleOtpChange(i, e.target.value)}
