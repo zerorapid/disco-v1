@@ -108,19 +108,19 @@ export default function AdminPage() {
           <h1 className="text-[14px] font-semibold uppercase tracking-[0.2em] leading-tight text-black/40">DISCO<br/>COMMAND</h1>
         </div>
 
-        {/* INTEGRATED VERTICAL KPIs - HIGH VISIBILITY */}
+        {/* INTEGRATED VERTICAL KPIs - INTER MEDIUM CLARITY */}
         <div className="p-6 space-y-4 border-b border-black/10 bg-uber-gray/10">
-          <div className="bg-white p-5 border-l-4 border-green-600 shadow-md">
-            <p className="text-[12px] font-bold uppercase tracking-widest text-black/80 mb-2">Today's Revenue</p>
-            <h2 className="text-[28px] font-semibold tracking-tighter text-black">₹{stats.revenue.toLocaleString()}</h2>
+          <div className="bg-white p-6 border-l-4 border-green-600 shadow-md">
+            <p className="text-[13px] font-medium uppercase tracking-widest text-black mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>Today's Revenue</p>
+            <h2 className="text-[32px] font-semibold tracking-tighter text-black" style={{ fontFamily: "'Inter', sans-serif" }}>₹{stats.revenue.toLocaleString()}</h2>
           </div>
-          <div className="bg-white p-5 border-l-4 border-black shadow-md">
-            <p className="text-[12px] font-bold uppercase tracking-widest text-black/80 mb-2">Order Velocity</p>
-            <h2 className="text-[28px] font-semibold tracking-tighter text-black">{stats.orders}</h2>
+          <div className="bg-white p-6 border-l-4 border-black shadow-md">
+            <p className="text-[13px] font-medium uppercase tracking-widest text-black mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>Today's Orders</p>
+            <h2 className="text-[32px] font-semibold tracking-tighter text-black" style={{ fontFamily: "'Inter', sans-serif" }}>{stats.orders}</h2>
           </div>
-          <div className="bg-white p-5 border-l-4 border-red-600 shadow-md">
-            <p className="text-[12px] font-bold uppercase tracking-widest text-black/80 mb-2">Stock Alerts</p>
-            <h2 className={`text-[28px] font-semibold tracking-tighter ${products.filter(p => p.stock < 5).length > 0 ? 'text-red-600' : 'text-black'}`}>
+          <div className="bg-white p-6 border-l-4 border-red-600 shadow-md">
+            <p className="text-[13px] font-medium uppercase tracking-widest text-black mb-2" style={{ fontFamily: "'Inter', sans-serif" }}>Low Stock Alerts</p>
+            <h2 className={`text-[32px] font-semibold tracking-tighter ${products.filter(p => p.stock < 5).length > 0 ? 'text-red-600' : 'text-black'}`} style={{ fontFamily: "'Inter', sans-serif" }}>
               {products.filter(p => p.stock < 5).length}
             </h2>
           </div>
@@ -128,23 +128,30 @@ export default function AdminPage() {
 
         <nav className="flex-1 overflow-y-auto py-6" role="tablist">
           {[
-            { id: 'orders', label: 'Order Pulse' },
-            { id: 'inventory', label: 'Inventory' },
-            { id: 'customers', label: 'Intelligence' },
-            { id: 'analytics', label: 'Financials' },
-            { id: 'alerts', label: 'Broadcast' }
+            { id: 'orders', label: 'Pulse', count: orders.length },
+            { id: 'inventory', label: 'Stock', count: products.length },
+            { id: 'customers', label: 'Users', count: 'LOG' },
+            { id: 'analytics', label: 'Stats', count: '₹' },
+            { id: 'alerts', label: 'Alerts', count: '!' }
           ].map((tab) => (
             <button 
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`w-full text-left px-8 py-4 text-[11px] font-semibold uppercase tracking-widest transition-all border-l-4 flex items-center justify-between group ${
+              className={`w-full text-left px-8 py-6 transition-all border-l-4 flex flex-col gap-1 group focus:outline-none ${
                 activeTab === tab.id 
                   ? 'bg-uber-gray border-black text-black' 
                   : 'border-transparent text-black/40 hover:text-black hover:bg-uber-gray/30'
               }`}
             >
-              <span>{tab.label}</span>
-              <span className={`text-[9px] ${activeTab === tab.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>➔</span>
+              <div className="flex items-center justify-between w-full">
+                <span className={`text-[13px] font-bold uppercase tracking-[0.2em] ${activeTab === tab.id ? 'text-black' : 'text-black/80'}`}>
+                  {tab.label}
+                </span>
+                <span className={`text-[11px] font-semibold ${activeTab === tab.id ? 'text-black/40' : 'text-black/20'}`}>
+                  ({tab.count})
+                </span>
+              </div>
+              <div className={`w-6 h-0.5 bg-black transition-all ${activeTab === tab.id ? 'opacity-100' : 'opacity-0'}`}></div>
             </button>
           ))}
         </nav>
