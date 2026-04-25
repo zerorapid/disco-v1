@@ -126,11 +126,11 @@ export default function Header({ onSearch }: HeaderProps) {
 
         {/* CENTER: SEARCH - Tactic 35, 37, 50 */}
         <div 
-          className={`transition-all duration-500 relative hidden md:block ${
-            isSearchOpen ? 'flex-1' : 'w-10 md:w-64 lg:w-96'
+          className={`transition-all duration-500 relative ${
+            isSearchOpen ? 'flex-1' : 'hidden md:block w-10 md:w-64 lg:w-96'
           }`}
         >
-          <div className={`relative flex items-center ${isSearchOpen ? 'w-full' : 'w-full'}`}>
+          <div className={`relative flex items-center w-full`}>
             <input
               ref={searchInputRef}
               type="text"
@@ -140,12 +140,25 @@ export default function Header({ onSearch }: HeaderProps) {
               onFocus={() => setIsSearchOpen(true)}
               className={`w-full bg-uber-gray h-10 md:h-12 px-10 text-sm font-bold placeholder:text-black/20 transition-all ${
                 isSearchOpen ? 'border-2 border-black bg-white shadow-xl' : 'border border-transparent'
-              } ${!isSearchOpen && 'md:block hidden'}`}
+              }`}
             />
             <Search 
               className={`absolute left-3 transition-colors ${isSearchOpen ? 'text-black' : 'text-black/30'}`} 
               size={18} 
             />
+            
+            {isSearchOpen && (
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsSearchOpen(false);
+                  setSearchQuery('');
+                }}
+                className="absolute right-3 w-8 h-8 flex items-center justify-center hover:bg-uber-gray active-scale"
+              >
+                <X size={20} />
+              </button>
+            )}
           </div>
         </div>
 
