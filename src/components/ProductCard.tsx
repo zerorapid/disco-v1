@@ -31,6 +31,12 @@ export default function ProductCard({ product }: ProductProps) {
 
   const handleAdd = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    // SAFETY CHECK: STOCK & HOURS
+    const hour = new Date().getHours();
+    const isStoreOpen = hour >= 6 && hour < 23;
+    if (!isStoreOpen || product.stock <= 0) return;
+
     if (isAdding) return;
     
     setIsAdding(true);
@@ -82,9 +88,17 @@ export default function ProductCard({ product }: ProductProps) {
         <img 
           src={product.image_url} 
           alt={product.name}
-          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 mix-blend-multiply"
+          className={`w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 mix-blend-multiply ${product.stock <= 0 ? 'grayscale opacity-40' : ''}`}
         />
         
+        {product.stock <= 0 && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/10 backdrop-blur-[2px]">
+            <div className="bg-black text-white px-4 py-2 font-black text-xs uppercase tracking-[0.3em] shadow-2xl rotate-[-5deg]">
+              Sold Out
+            </div>
+          </div>
+        )}
+
         {product.stock > 0 && product.stock < 10 && (
           <div className="absolute bottom-0 left-0 w-full bg-red-700 text-white text-xs font-black py-1 px-3 uppercase tracking-tighter">
             Only {product.stock} Units Remaining
@@ -137,11 +151,25 @@ export default function ProductCard({ product }: ProductProps) {
             ) : (
               <button 
                 onClick={handleAdd}
-                disabled={isAdding}
-                className={`absolute inset-0 w-full bg-white border-2 border-green-800 text-green-800 font-black text-xs uppercase tracking-widest hover:bg-green-50 transition-all flex items-center justify-center gap-2 active-scale ${isAdding ? 'opacity-50' : ''}`}
+                disabled={isAdding || product.stock <= 0 || (new Date().getHours() < 6 || new Date().getHours() >= 23)}
+                className={`absolute inset-0 w-full font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 active-scale ${
+                  product.stock <= 0 
+                    ? 'bg-uber-gray text-black/20 border-2 border-black/5 cursor-not-allowed' 
+                    : (new Date().getHours() < 6 || new Date().getHours() >= 23)
+                    ? 'bg-black text-white/40 border-2 border-black cursor-not-allowed'
+                    : 'bg-white border-2 border-green-800 text-green-800 hover:bg-green-50'
+                }`}
               >
-                <span>{isAdding ? 'Sourcing...' : 'Add to Cart'}</span>
-                {!isAdding && <span className="material-symbols-outlined text-lg">add</span>}
+                {product.stock <= 0 ? (
+                  <span>SOLD OUT</span>
+                ) : (new Date().getHours() < 6 || new Date().getHours() >= 23) ? (
+                  <span>STORE CLOSED</span>
+                ) : (
+                  <>
+                    <span>{isAdding ? 'Sourcing...' : 'Add to Cart'}</span>
+                    {!isAdding && <span className="material-symbols-outlined text-lg">add</span>}
+                  </>
+                )}
               </button>
             )}
           </div>

@@ -62,6 +62,18 @@ export default function Header({ onSearch }: HeaderProps) {
 
   const activeAddress = selectedAddress || { title: "DISCO Warehouse", area: "Industrial Area" };
 
+  // STORE HOURS LOGIC (6 AM - 11 PM)
+  const [isStoreOpen, setIsStoreOpen] = useState(true);
+  useEffect(() => {
+    const checkStoreStatus = () => {
+      const hour = new Date().getHours();
+      setIsStoreOpen(hour >= 6 && hour < 23);
+    };
+    checkStoreStatus();
+    const timer = setInterval(checkStoreStatus, 60000);
+    return () => clearInterval(timer);
+  }, []);
+
   if (isAdmin) {
     return (
       <header className="fixed top-0 left-0 w-full h-16 z-50 bg-black text-white flex items-center px-6 justify-between border-b border-white/10">
@@ -92,10 +104,16 @@ export default function Header({ onSearch }: HeaderProps) {
           >
             <div className="flex items-center gap-2 mb-0.5">
               <span className="text-xs font-bold text-muted uppercase tracking-wider">Delivery to</span>
-              <div className="bg-green-800 text-white text-[10px] font-black px-2 py-0.5 animate-pulse-slow flex items-center gap-1">
-                <Zap size={10} fill="white" />
-                12 MINS
-              </div>
+              {isStoreOpen ? (
+                <div className="bg-green-800 text-white text-[10px] font-black px-2 py-0.5 animate-pulse-slow flex items-center gap-1">
+                  <Zap size={10} fill="white" />
+                  12 MINS
+                </div>
+              ) : (
+                <div className="bg-red-600 text-white text-[10px] font-black px-2 py-0.5 flex items-center gap-1">
+                  CLOSED
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-1.5 group-hover:gap-2 transition-all">
               <h2 className="text-sm md:text-base font-black text-black uppercase tracking-tight truncate">

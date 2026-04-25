@@ -23,14 +23,46 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<'orders' | 'inventory' | 'customers' | 'analytics' | 'alerts' | 'spy'>('orders');
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    // Check if previously authorized in this session
-    const auth = sessionStorage.getItem('disco_admin_auth');
     if (auth === 'true') {
       setIsAuthorized(true);
       fetchData();
     }
   }, []);
+
+  const [lastActivity, setLastActivity] = useState(Date.now());
+
+  // AUTO-LOGOUT SENTRY (30 MINS)
+  useEffect(() => {
+    if (!isAuthorized) return;
+
+    const checkInactivity = () => {
+      const now = Date.now();
+      const thirtyMinutes = 30 * 60 * 1000;
+      if (now - lastActivity > thirtyMinutes) {
+        handleLogout();
+      }
+    };
+
+    const resetTimer = () => setLastActivity(Date.now());
+    const interval = setInterval(checkInactivity, 60000); 
+    
+    window.addEventListener('mousemove', resetTimer);
+    window.addEventListener('keypress', resetTimer);
+    window.addEventListener('touchstart', resetTimer);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('mousemove', resetTimer);
+      window.removeEventListener('keypress', resetTimer);
+      window.removeEventListener('touchstart', resetTimer);
+    };
+  }, [isAuthorized, lastActivity]);
+
+  const handleLogout = () => {
+    sessionStorage.clear();
+    setIsAuthorized(false);
+    setPassword('');
+  };
 
   async function fetchData() {
     const [prodRes, orderRes] = await Promise.all([
@@ -155,13 +187,23 @@ export default function AdminPage() {
             <ExternalLink size={16} />
             View Storefront
           </a>
+        <div className="p-6 border-t border-black/10 space-y-4">
+          <a 
+            href="/" 
+            target="_blank"
+            className="flex items-center gap-3 px-4 py-3 text-[12px] font-black uppercase tracking-widest text-black/60 hover:text-black hover:bg-black/5 transition-all"
+          >
+            <ExternalLink size={16} />
+            View Storefront
+          </a>
           <button 
-            onClick={() => { sessionStorage.clear(); window.location.reload(); }}
+            onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 text-[12px] font-black uppercase tracking-widest text-red-600 hover:bg-red-50 transition-all"
           >
             <LogOut size={16} />
             Terminate Session
           </button>
+        </div>
         </div>
       </div>
 
